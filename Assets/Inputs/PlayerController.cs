@@ -5,27 +5,49 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 {
+    private CameraManager cameraManager;
+    public float smoothTime = 1f;
+    private Vector3 velocity = Vector3.zero;
     private PlayerInput playerControls;
     private Vector2 movementInput;
-    private bool isJumping;
-    private bool isRunning;
+    public Vector2 cameraInput;
+    private Vector3 targetDirection = Vector3.zero;
 
     Vector3 moveDirection;
-    float smoothTime = 0.3f;
+    Transform cameraObject;
+    Rigidbody rb;
+
     float hVelocity = 0f;
     float vVecolity = 0f;
     float hCurrent = 0f;
     float vCurrent = 0f;
 
-    Transform cameraObject;
-    Rigidbody rb;
+    [Header("Falling")]
+    public float inAirTimer;
+    public float leapingVelocity;
+    public float fallingVelocity;
+    public float rayCastHeightOffset = 0.5f;
+    public LayerMask groundLayer;
+
+    [Header("Movement Flags")]
+    private bool isJumping;
+    private bool isRunning;
+    private bool isGrounded;
+
+    [Header("Movement Speeds")]
+    public float walkingSpeed = 1.5f;
+    public float runningSpeed = 5f;
     private float movementSpeed = 7f;
-    private float rotationSpeed = 15;
-    private Vector3 targetDirection = Vector3.zero;
+    private float rotationSpeed = 15f;
+
+    [Header("Jump Speeds")]
+    public float jumpHeight = 3f;
+    public float gravityIntensity = -15f;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        cameraManager = FindObjectOfType<CameraManager>();
         cameraObject = Camera.main.transform;
     }
 
@@ -38,10 +60,9 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
             playerControls.Player.Move.performed+= ctx => OnMove(ctx);
             playerControls.Player.Move.canceled += ctx => OnMove(ctx);
 
-            playerControls.Player.Jump.started+= ctx => OnJump(ctx);
-            playerControls.Player.Jump.performed += ctx => OnJump(ctx);
-            playerControls.Player.Jump.canceled += ctx => OnJump(ctx);
+            playerControls.Player.Jump.started += ctx => OnJump(ctx);
 
+            playerControls.Player.Look.performed += ctx => OnLook(ctx);
         }
         playerControls.Player.Enable();
     }
@@ -66,10 +87,22 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
     private void HandleMovement()
     {
-        moveDirection = cameraObject.forward * vCurrent + cameraObject.right * hCurrent;
-        moveDirection.y = 0;
-        moveDirection *= movementSpeed;
+        moveDirection.x = cameraObject.forward.x * vCurrent + cameraObject.right.x * hCurrent;
+        moveDirection.z = cameraObject.forward.z * vCurrent + cameraObject.right.z * hCurrent;
+        moveDirection.x *= movementSpeed;
+        moveDirection.z *= movementSpeed;
         rb.velocity = moveDirection;
+
+       
+
+
+    }
+    private void HandleJumping()
+    {
+        float jumpingVelocity = Mathf.Sqrt(-2 * gravityIntensity * jumpHeight);
+        Vector3 playerVelocity = moveDirection;
+        playerVelocity.y = jumpingVelocity;
+        rb.velocity = playerVelocity;
     }
 
     private void HandleRotation()
@@ -77,26 +110,22 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
         targetDirection = cameraObject.forward * vCurrent + cameraObject.right * hCurrent;
         targetDirection.Normalize();
         targetDirection.y = 0;
-
         Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
         Quaternion playerRotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
 
         transform.rotation = playerRotation;
     }
 
+    private void HandleFallingAndLanding()
+    {
+        RaycastHit hit;
+    }
+
     private void HandleAllMovement()
     {
         HandleMovement();
+        HandleJumping();
         HandleRotation();
-    }
-
-    private void Update()
-    {
-        HandleAllInput();
-    }
-    private void FixedUpdate()
-    {
-        HandleAllMovement();
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -106,7 +135,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
     public void OnLook(InputAction.CallbackContext context)
     {
-        throw new System.NotImplementedException();
+        cameraInput = context.ReadValue<Vector2>();
     }
 
     public void OnFire(InputAction.CallbackContext context)
@@ -117,7 +146,6 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     public void OnJump(InputAction.CallbackContext context)
     {
         isJumping = context.ReadValue<bool>();
-        isJumping = context.action.triggered;
     }
     public void OnSprint(InputAction.CallbackContext context)
     {
@@ -127,15 +155,30 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
     public void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("Ground"))
-            isJumping = false;
+        if (other.gameObject.CompareTag("Ground"))
+        {
+            Debug.Log("touch-y mmmmm!");
+            isGrounded = true;
+        }
     }
 
     public void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Ground"))
-            isJumping = true;
+        if (other.gameObject.CompareTag("Ground"))
+            isGrounded = false;
     }
 
+    private void Update()
+    {
+        HandleAllInput();
+    }
+    private void FixedUpdate()
+    {
+        HandleAllMovement();
+        cameraManager.HandleAllCameraMovement();
+    }
 
+    private void LateUpdate()
+    {
+    }
 }

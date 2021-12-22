@@ -35,7 +35,7 @@
                     "id": "090408c6-7fc8-475b-9697-9858cf47b4cb",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": ""
+                    "interactions": "Press"
                 },
                 {
                     "name": "Sprint",
@@ -178,6 +178,72 @@
                     "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7cc23a73-faad-42a7-87dd-87ea7abf4e6e",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse;Touch",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "Right Stick",
+                    "id": "0020596f-9d40-4dc5-bea7-8e947297bb6a",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Look",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "808a7dc4-8c7f-4505-9bda-f6a719c13176",
+                    "path": "<Gamepad>/rightStick/Up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "c1db8310-5c8c-4996-8885-22996219751d",
+                    "path": "<Gamepad>/rightStick/Down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "da4cd5c7-a143-414e-a307-039fcae5bcb3",
+                    "path": "<Gamepad>/rightStick/Left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "53533463-e3aa-4156-ba86-97cdc858c65e",
+                    "path": "<Gamepad>/rightStick/Right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 },
                 {
                     "name": "",
