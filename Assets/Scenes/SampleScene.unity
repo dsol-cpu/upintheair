@@ -235,6 +235,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   smoothTime: 0.3
   cameraInput: {x: 0, y: 0}
+  inAirTimer: 0
+  leapingVelocity: 0
+  fallingVelocity: 0
+  rayCastHeightOffset: 0.5
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  walkingSpeed: 1.5
+  runningSpeed: 5
+  jumpHeight: 3
+  gravityIntensity: -15
 --- !u!54 &215652514
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -382,7 +393,7 @@ GameObject:
   m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!64 &296634202
 MeshCollider:
@@ -631,7 +642,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.01, y: 0.56, z: 37.97}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1522364564}
@@ -704,6 +715,8 @@ MonoBehaviour:
   cameraPivotSpeed: 2
   lookAngle: 0
   pivotAngle: 0
+  minimumPivotAngle: -35
+  maximumPivotAngle: 35
 --- !u!4 &2105039044
 Transform:
   m_ObjectHideFlags: 0
