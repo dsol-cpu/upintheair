@@ -25,9 +25,8 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     float hCurrent = 0f;
     float vCurrent = 0f;
 
-    public bool b_Input;
 
-    [Header("")]
+    [Header("Actions")]
     private bool isInteracting;
 
     [Header("Animator")]
@@ -43,18 +42,18 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     public LayerMask groundLayer;
 
     [Header("Movement Flags")]
-    private bool isJumping;
-    private bool isRunning;
-    private bool isGrounded;
+    public bool isJumping;
+    public bool isSprinting;
+    public bool isGrounded;
 
     [Header("Movement Speeds")]
     public float walkingSpeed = 1.5f;
     public float runningSpeed = 5f;
-    private float movementSpeed = 7f;
+    public float sprintingSpeed = 7f;
     private float rotationSpeed = 15f;
 
     [Header("Jump Speeds")]
-    public float jumpHeight = 3f;
+    public float jumpHeight = 6f;
     public float gravityIntensity = -15f;
 
     private void Awake()
@@ -77,13 +76,14 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
             playerControls.Player.Move.performed += ctx => OnMove(ctx);
             playerControls.Player.Move.canceled += ctx => OnMove(ctx);
 
-            playerControls.Player.Jump.performed += ctx => OnJump(ctx);
+            playerControls.Player.Jump.performed += ctx => isJumping = true;
 
             playerControls.Player.Look.performed += ctx => OnLook(ctx);
+            playerControls.Player.Look.canceled += ctx => OnLook(ctx);
 
-            playerControls.Player.Run.started += ctx => b_Input = true;
-            playerControls.Player.Run.performed += ctx => b_Input = true;
-            playerControls.Player.Run.performed += ctx => b_Input = false;
+            playerControls.Player.Sprint.performed += ctx => OnSprint(ctx);
+            playerControls.Player.Sprint.canceled += ctx => OnSprint(ctx);
+
 
         }
         playerControls.Player.Enable();
@@ -94,13 +94,13 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
         playerControls.Player.Disable();
     }
 
-    private void PlayTargetAnimation(string targetAnimation, bool isInteracting)
+    private void PlayTargetAnimation(string targetAnimation, bool interaction)
     {
-        animator.SetBool("isInteracting", isInteracting);
+        animator.SetBool("isInteracting", interaction);
         animator.CrossFade(targetAnimation, 0.2f);
     }
 
-    private void UpdateAnimatorValues(float horizontalMovement, float verticalMovement, bool isRunning)
+    private void UpdateAnimatorValues(float horizontalMovement, float verticalMovement, bool isSprinting)
     {
         //Animation Snapping
         float snappedHorizontal;
@@ -132,13 +132,11 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
         #endregion
 
 
-
-        if (isRunning)
+        if (isSprinting)
         {
             snappedHorizontal = horizontalMovement;
-            snappedVertical = 22f;
+            snappedVertical = 2f;
         }
-
 
         animator.SetFloat(horizontal, snappedHorizontal, 0.1f, Time.deltaTime);
         animator.SetFloat(vertical, snappedVertical, 0.1f, Time.deltaTime);
@@ -155,48 +153,47 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
         cameraInputY = cameraInput.y;
 
         moveAmount = Mathf.Clamp01(Mathf.Abs(hCurrent) + Mathf.Abs(vCurrent));
-        UpdateAnimatorValues(0, moveAmount, isRunning);
+        UpdateAnimatorValues(0, moveAmount, isSprinting);
     }
 
-    private void HandleRunningInput()
+    private void HandleSprintingInput()
     {
-        if (b_Input && moveAmount > 0.5f)
+        if (isSprinting && moveAmount > 0.5f)
         {
-            isRunning = true;
+            isSprinting = true;
         }
         else
         {
-            isRunning = false;
+            isSprinting = false;
         }
     }
 
     private void HandleJumpingInput()
     {
-
+       if(isJumping)
+        {
+            HandleJumping();
+            isJumping = !isJumping;
+        }
     }
 
     private void HandleAllInput()
     {
         HandleMovementInput();
-        HandleRunningInput();
-        //HandleJumpingInput();
+        HandleSprintingInput();
+        HandleJumpingInput();
     }
 
     private void HandleMovement()
     {
-        if (isJumping)
-            return;
 
         moveDirection.x = cameraObject.forward.x * vCurrent + cameraObject.right.x * hCurrent;
+        moveDirection.y = 0;
         moveDirection.z = cameraObject.forward.z * vCurrent + cameraObject.right.z * hCurrent;
-        moveDirection.x *= movementSpeed;
-        moveDirection.z *= movementSpeed;
-        rb.velocity = moveDirection;
 
-
-        if (isRunning)
+        if (isSprinting)
         {
-            moveDirection *= runningSpeed;
+            moveDirection *= sprintingSpeed;
         }
         else
         {
@@ -209,6 +206,8 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
                 moveDirection *= walkingSpeed;
             }
         }
+
+        rb.velocity = moveDirection;
 
     }
     private void HandleJumping()
@@ -223,13 +222,10 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
             playerVelocity.y = jumpingVelocity;
             rb.velocity = playerVelocity;
         }
-
     }
 
     private void HandleRotation()
     {
-        if (isJumping)
-            return;
 
         Vector3 targetDirection = cameraObject.forward * vCurrent + cameraObject.right * hCurrent;
         targetDirection.Normalize();
@@ -242,9 +238,8 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
     private void HandleFallingAndLanding()
     {
-        RaycastHit hit;
         Vector3 rayCastOrigin = transform.position;
-        //rayCastOrigin.y += rayCastHeightOffSet;
+        rayCastOrigin.y += rayCastHeightOffset;
 
         if (!isGrounded && !isJumping)
         {
@@ -256,20 +251,27 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
             rb.AddForce(transform.forward * leapingVelocity);
             rb.AddForce(-Vector3.up * fallingVelocity * inAirTimer);
         }
-        if (Physics.SphereCast(rayCastOrigin, 0.2f, -Vector3.up, out hit, groundLayer))
+
+        if (Physics.SphereCast(rayCastOrigin, 0.2f, -Vector3.up, out _, groundLayer))
         {
             if (!isGrounded && !isInteracting)
             {
                 PlayTargetAnimation("Land", true);
             }
+            inAirTimer = 0;
+            isGrounded = true;
+        }
+        else
+        {
+            isGrounded = false;
         }
     }
 
     private void HandleAllMovement()
     {
-        //HandleFallingAndLanding();
+        HandleFallingAndLanding();
 
-        if (isInteracting)
+        if (isInteracting || isJumping)
             return;
 
         HandleMovement();
@@ -293,44 +295,29 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
     public void OnJump(InputAction.CallbackContext context)
     {
-
+        isJumping = context.action.triggered;
+        Debug.Log(isJumping);
     }
-    public void OnRun(InputAction.CallbackContext context)
+    public void OnSprint(InputAction.CallbackContext context)
     {
-        b_Input = context.ReadValue<bool>();
-        b_Input = context.action.triggered;
-    }
-
-
-    public void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.CompareTag("Ground"))
-        {
-            Debug.Log("touch-y mmmmm!");
-            isGrounded = true;
-        }
-    }
-
-    public void OnTriggerExit(Collider other)
-    {
-        if (other.gameObject.CompareTag("Ground"))
-            isGrounded = false;
+        isSprinting = context.action.triggered;
     }
 
     private void Update()
     {
-        HandleAllInput();
+        HandleAllMovement();
     }
     private void FixedUpdate()
     {
-        HandleAllMovement();
+        HandleAllInput();
         cameraManager.HandleAllCameraMovement();
     }
 
     private void LateUpdate()
     {
-        animator.GetBool("isInteracting");
-        isJumping = animator.GetBool("isJumping");
+        isInteracting = animator.GetBool("isInteracting");
+        //isJumping = animator.GetBool("isJumping");
+        animator.SetBool("isGrounded", isGrounded);
     }
 
 }
