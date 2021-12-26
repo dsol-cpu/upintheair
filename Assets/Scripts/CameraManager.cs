@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class CameraManager : MonoBehaviour
 {
-    public PlayerController playerController;
-
     public Transform targetTransform; // The object the camera will follow
     public Transform cameraPivot; // The object the camera uses to pivot (Look up and down)
     public Transform cameraTransform; //The transform of the actual camrea in the scene
@@ -27,7 +25,6 @@ public class CameraManager : MonoBehaviour
     public float maximumPivotAngle = 35;
     private void Awake()
     {
-        playerController = FindObjectOfType<PlayerController>();
         targetTransform = FindObjectOfType<PlayerController>().transform;
         cameraTransform = Camera.main.transform;
         defaultPosition = cameraTransform.localPosition.z;
@@ -40,10 +37,10 @@ public class CameraManager : MonoBehaviour
         transform.position = targetPosition;
     }
 
-    private void RotateCamera()
+    private void RotateCamera(Vector2 cameraInput)
     {
-        lookAngle += playerController.cameraInput.x * cameraLookSpeed;
-        pivotAngle -= playerController.cameraInput.y * cameraPivotSpeed;
+        lookAngle += cameraInput.x * cameraLookSpeed;
+        pivotAngle -= cameraInput.y * cameraPivotSpeed;
 
         Vector3 rotation = Vector3.zero;
         rotation.y = lookAngle;
@@ -73,10 +70,10 @@ public class CameraManager : MonoBehaviour
         cameraVectorPosition.z = Mathf.Lerp(cameraTransform.localPosition.z, targetPosition, 0.2f);
         cameraTransform.localPosition = cameraVectorPosition;
     }
-    public void HandleAllCameraMovement()
+    public void HandleAllCameraMovement(Vector2 cameraInput)
     {
         FollowTarget();
-        RotateCamera();
+        RotateCamera(cameraInput);
         HandleCameraCollisions();
     }
 }

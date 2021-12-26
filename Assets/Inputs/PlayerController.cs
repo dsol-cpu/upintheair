@@ -58,9 +58,9 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
         cameraManager = FindObjectOfType<CameraManager>();
         cameraObject = Camera.main.transform;
 
-        animator = GetComponent<Animator>();
-        horizontal = Animator.StringToHash("Horizontal");
-        vertical = Animator.StringToHash("Vertical");
+        //animator = GetComponent<Animator>();
+        //horizontal = Animator.StringToHash("Horizontal");
+        //vertical = Animator.StringToHash("Vertical");
     }
 
     private void OnEnable()
@@ -89,8 +89,8 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
     private void PlayTargetAnimation(string targetAnimation, bool interaction)
     {
-        animator.SetBool("isInteracting", interaction);
-        animator.CrossFade(targetAnimation, 0.2f);
+        //animator.SetBool("isInteracting", interaction);
+        //animator.CrossFade(targetAnimation, 0.2f);
     }
 
     private void UpdateAnimatorValues(float horizontalMovement, float verticalMovement, bool isSprinting)
@@ -131,8 +131,8 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
             snappedVertical = 2f;
         }
 
-        animator.SetFloat(horizontal, snappedHorizontal, 0.1f, Time.deltaTime);
-        animator.SetFloat(vertical, snappedVertical, 0.1f, Time.deltaTime);
+        //animator.SetFloat(horizontal, snappedHorizontal, 0.1f, Time.deltaTime);
+        //animator.SetFloat(vertical, snappedVertical, 0.1f, Time.deltaTime);
     }
 
     private void HandleMovementInput()
@@ -204,8 +204,8 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     {
         if (isGrounded)
         {
-            animator.SetBool("isJumping", true);
-            PlayTargetAnimation("Jump", false);
+            //animator.SetBool("isJumping", true);
+            //PlayTargetAnimation("Jump", false);
 
             float jumpingVelocity = Mathf.Sqrt(-2 * gravityIntensity * jumpHeight);
             Vector3 playerVelocity = moveDirection;
@@ -235,7 +235,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
         {
             if (!isInteracting)
             {
-                PlayTargetAnimation("Falling", true);
+                //PlayTargetAnimation("Falling", true);
             }
             inAirTimer += Time.deltaTime;
             rb.AddForce(transform.forward * leapingVelocity);
@@ -246,7 +246,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
         {
             if (!isGrounded && !isInteracting)
             {
-                PlayTargetAnimation("Land", true);
+                //PlayTargetAnimation("Land", true);
             }
             inAirTimer = 0;
             isGrounded = true;
@@ -275,8 +275,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
     public void OnLook(InputAction.CallbackContext context)
     {
-        cameraInput += context.ReadValue<Vector2>();
-        Debug.Log(cameraInput);
+        cameraInput = context.ReadValue<Vector2>();
     }
 
     public void OnFire(InputAction.CallbackContext context)
@@ -297,19 +296,18 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     private void Update()
     {
         HandleAllMovement();
-
     }
     private void FixedUpdate()
     {
         HandleAllInput();
-        cameraManager.HandleAllCameraMovement();
     }
 
     private void LateUpdate()
     {
+        cameraManager.HandleAllCameraMovement(cameraInput);
+
         //isInteracting = animator.GetBool("isInteracting");
         //isJumping = animator.GetBool("isJumping");
         //animator.SetBool("isGrounded", isGrounded);
     }
-
 }
