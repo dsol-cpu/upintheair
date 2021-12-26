@@ -331,6 +331,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   smoothTime: 0.3
   cameraInput: {x: 0, y: 0}
+  cameraScrollValue: {x: 0, y: 0}
   moveAmount: 0
   inAirTimer: 0
   leapingVelocity: 5
@@ -508,6 +509,10 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: de19ebd9-4ce8-4ad0-bbac-3e65e1b0ba8d
     m_ActionName: Player/Sprint[/Keyboard/shift]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 0e0c2e58-17ab-451d-9390-7829f24e3b88
+    m_ActionName: Player/Zoom_Camera[/Mouse/scroll]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: Keyboard&Mouse
   m_DefaultActionMap: Player
@@ -864,22 +869,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f882713abdac3574593b91e135c50606, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerController: {fileID: 215652513}
   targetTransform: {fileID: 0}
   cameraPivot: {fileID: 1522364564}
   cameraTransform: {fileID: 0}
   collisionLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
   cameraCollisionOffset: 0.2
   minimumCollisionOffset: 0.2
   cameraCollisionRadius: 2
   cameraFollowSpeed: 0.2
-  cameraLookSpeed: 2
-  cameraPivotSpeed: 2
+  cameraLookSpeed: 0.5
+  cameraPivotSpeed: 0.5
+  cameraScrollValue: 5
   lookAngle: 0
   pivotAngle: 0
-  minimumPivotAngle: -35
+  minimumPivotAngle: -65
   maximumPivotAngle: 35
 --- !u!4 &2105039044
 Transform:

@@ -6,28 +6,32 @@ public class CameraManager : MonoBehaviour
 {
     public Transform targetTransform; // The object the camera will follow
     public Transform cameraPivot; // The object the camera uses to pivot (Look up and down)
-    public Transform cameraTransform; //The transform of the actual camrea in the scene
+    public Transform cameraTransform; //The transform of the actual camera in the scene
     public LayerMask collisionLayers; // The layers we want our camera to collide with
-    private float defaultPosition;
+    private float defaultPosition; //set to local 'Z' position of the camera
     private Vector3 cameraFollowVelocity = Vector3.zero;
     private Vector3 cameraVectorPosition;
-
+    
     public float cameraCollisionOffset = 0.2f; // How much camera will repel from objects
     public float minimumCollisionOffset = 0.2f;
     public float cameraCollisionRadius = 2f;
-    public float cameraFollowSpeed = 0.2f;
-    public float cameraLookSpeed = 2f;
-    public float cameraPivotSpeed = 2f;
+    public float cameraFollowSpeed = 0.05f;
+    public float cameraLookSpeed = .5f;
+    public float cameraPivotSpeed = .5f;
+    public float cameraScrollValue;
 
-    public float lookAngle; //Camera looking up and down
-    public float pivotAngle; //Camera looking left and right
-    public float minimumPivotAngle = -35;
+
+    public float lookAngle; //Camera looking left and right
+    public float pivotAngle; //Camera looking up and down
+    public float minimumPivotAngle = -60;
     public float maximumPivotAngle = 35;
+
     private void Awake()
     {
         targetTransform = FindObjectOfType<PlayerController>().transform;
         cameraTransform = Camera.main.transform;
         defaultPosition = cameraTransform.localPosition.z;
+
     }
 
     private void FollowTarget()
@@ -50,12 +54,13 @@ public class CameraManager : MonoBehaviour
         Quaternion targetRotation = Quaternion.Euler(rotation);
         transform.rotation = targetRotation;
 
-        //rotation = Vector3.zero;
+        rotation = Vector3.zero;
         rotation.x = pivotAngle;
 
         targetRotation = Quaternion.Euler(rotation);
         cameraPivot.localRotation = targetRotation;
     }
+
     private void HandleCameraCollisions()
     {
         float targetPosition = defaultPosition;
@@ -74,10 +79,22 @@ public class CameraManager : MonoBehaviour
         cameraVectorPosition.z = Mathf.Lerp(cameraTransform.localPosition.z, targetPosition, 0.2f);
         cameraTransform.localPosition = cameraVectorPosition;
     }
-    public void HandleAllCameraMovement(Vector2 cameraInput)
+
+    private void Zoom(Vector2 value)
+    {
+        //cameraVectorPosition.x -= value.x;
+        //cameraVectorPosition.y -= value.y;
+       
+        targetTransform.position += targetTransform.forward * value.y *.0005f;
+        
+    }
+
+    public void HandleAllCameraMovement(Vector2 cameraInput, Vector2 cameraScrollValue)
     {
         FollowTarget();
         RotateCamera(cameraInput);
         HandleCameraCollisions();
+
+        Zoom(cameraScrollValue);
     }
 }

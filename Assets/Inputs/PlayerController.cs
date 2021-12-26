@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     private PlayerInput playerControls;
     private Vector2 movementInput;
     public Vector2 cameraInput;
+    public Vector2 cameraScrollValue;
 
     Vector3 moveDirection;
     Transform cameraObject;
@@ -75,6 +76,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
             playerControls.Player.Jump.performed += ctx => isJumping = true;
 
             playerControls.Player.Look.performed += ctx => OnLook(ctx);
+            playerControls.Player.Zoom_Camera.performed += ctx => OnZoom_Camera(ctx);
 
             playerControls.Player.Sprint.performed += ctx => OnSprint(ctx);
             playerControls.Player.Sprint.canceled += ctx => OnSprint(ctx);
@@ -200,6 +202,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
         rb.velocity = moveDirection;
 
     }
+
     private void HandleJumping()
     {
         if (isGrounded)
@@ -288,6 +291,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
         isJumping = context.action.triggered;
         Debug.Log(isJumping);
     }
+
     public void OnSprint(InputAction.CallbackContext context)
     {
         isSprinting = context.action.triggered;
@@ -305,10 +309,19 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
     private void LateUpdate()
     {
-        cameraManager.HandleAllCameraMovement(cameraInput);
+        cameraManager.HandleAllCameraMovement(cameraInput, cameraScrollValue);
 
         //isInteracting = animator.GetBool("isInteracting");
         //isJumping = animator.GetBool("isJumping");
         //animator.SetBool("isGrounded", isGrounded);
+    }
+
+    public void OnZoom_Camera(InputAction.CallbackContext context)
+    {
+        
+        cameraScrollValue = context.ReadValue<Vector2>();
+        if(cameraScrollValue.y > 0) { Debug.Log("Scroll UP"); }
+        if (cameraScrollValue.y < 0) { Debug.Log("Scroll DOWN"); }
+
     }
 }
