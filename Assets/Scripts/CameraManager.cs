@@ -42,13 +42,17 @@ public class CameraManager : MonoBehaviour
         lookAngle += cameraInput.x * cameraLookSpeed;
         pivotAngle -= cameraInput.y * cameraPivotSpeed;
 
+        if (pivotAngle >= maximumPivotAngle) pivotAngle = maximumPivotAngle;
+        if (pivotAngle <= minimumPivotAngle) pivotAngle = minimumPivotAngle;
+        
         Vector3 rotation = Vector3.zero;
         rotation.y = lookAngle;
         Quaternion targetRotation = Quaternion.Euler(rotation);
         transform.rotation = targetRotation;
 
-        rotation = Vector3.zero;
+        //rotation = Vector3.zero;
         rotation.x = pivotAngle;
+
         targetRotation = Quaternion.Euler(rotation);
         cameraPivot.localRotation = targetRotation;
     }

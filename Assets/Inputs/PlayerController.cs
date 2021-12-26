@@ -297,6 +297,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     {
         HandleAllMovement();
     }
+
     private void FixedUpdate()
     {
         HandleAllInput();
