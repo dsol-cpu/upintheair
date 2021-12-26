@@ -12,9 +12,6 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     private Vector2 movementInput;
     public Vector2 cameraInput;
 
-    public float cameraInputX;
-    public float cameraInputY;
-
     Vector3 moveDirection;
     Transform cameraObject;
     Rigidbody rb;
@@ -24,7 +21,6 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     float vVecolity = 0f;
     float hCurrent = 0f;
     float vCurrent = 0f;
-
 
     [Header("Actions")]
     private bool isInteracting;
@@ -79,12 +75,9 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
             playerControls.Player.Jump.performed += ctx => isJumping = true;
 
             playerControls.Player.Look.performed += ctx => OnLook(ctx);
-            playerControls.Player.Look.canceled += ctx => OnLook(ctx);
 
             playerControls.Player.Sprint.performed += ctx => OnSprint(ctx);
             playerControls.Player.Sprint.canceled += ctx => OnSprint(ctx);
-
-
         }
         playerControls.Player.Enable();
     }
@@ -148,9 +141,6 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
         float newV = Mathf.SmoothDamp(vCurrent, movementInput.y, ref vVecolity, smoothTime);
         hCurrent = newH;
         vCurrent = newV;
-
-        cameraInputX = cameraInput.x;
-        cameraInputY = cameraInput.y;
 
         moveAmount = Mathf.Clamp01(Mathf.Abs(hCurrent) + Mathf.Abs(vCurrent));
         UpdateAnimatorValues(0, moveAmount, isSprinting);
@@ -252,7 +242,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
             rb.AddForce(-Vector3.up * fallingVelocity * inAirTimer);
         }
 
-        if (Physics.SphereCast(rayCastOrigin, 0.2f, -Vector3.up, out _, groundLayer))
+        if (Physics.SphereCast(rayCastOrigin, 0.05f, -Vector3.up, out _, groundLayer))
         {
             if (!isGrounded && !isInteracting)
             {
@@ -285,7 +275,8 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
     public void OnLook(InputAction.CallbackContext context)
     {
-        cameraInput = context.ReadValue<Vector2>();
+        cameraInput += context.ReadValue<Vector2>();
+        Debug.Log(cameraInput);
     }
 
     public void OnFire(InputAction.CallbackContext context)
@@ -306,6 +297,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     private void Update()
     {
         HandleAllMovement();
+
     }
     private void FixedUpdate()
     {
@@ -315,9 +307,9 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
     private void LateUpdate()
     {
-        isInteracting = animator.GetBool("isInteracting");
+        //isInteracting = animator.GetBool("isInteracting");
         //isJumping = animator.GetBool("isJumping");
-        animator.SetBool("isGrounded", isGrounded);
+        //animator.SetBool("isGrounded", isGrounded);
     }
 
 }

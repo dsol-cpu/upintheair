@@ -174,7 +174,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: aec988a8340b37045beab36c85e9fb12, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -213,7 +213,7 @@ Transform:
   m_GameObject: {fileID: 147689136}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 5.75, y: 4.01, z: 4.67}
-  m_LocalScale: {x: 8.2465, y: 8.2465, z: 8.2465}
+  m_LocalScale: {x: 8.342159, y: 8.342159, z: 8.342159}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
@@ -331,12 +331,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   smoothTime: 0.3
   cameraInput: {x: 0, y: 0}
-  cameraInputX: 0
-  cameraInputY: 0
   moveAmount: 0
   inAirTimer: 0
-  leapingVelocity: 3
-  fallingVelocity: 3
+  leapingVelocity: 5
+  fallingVelocity: 50
   rayCastHeightOffset: 0.5
   groundLayer:
     serializedVersion: 2
@@ -347,8 +345,8 @@ MonoBehaviour:
   walkingSpeed: 1.5
   runningSpeed: 5
   sprintingSpeed: 7
-  jumpHeight: 3
-  gravityIntensity: -15
+  jumpHeight: 15
+  gravityIntensity: -50
 --- !u!54 &215652514
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -407,11 +405,35 @@ MonoBehaviour:
     m_ActionId: 3634a1a4-0708-4dd6-b0ff-bfddd07443b3
     m_ActionName: Player/Move[/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 215652513}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: OnLook
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 6c76a3cf-2fe7-4fd6-b77b-948f4f64fcf0
     m_ActionName: Player/Look[/Mouse/delta,/Pen/delta]
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 215652513}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: OnFire
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 2a000eb6-0bc5-4ba7-8fdc-82db551570d4
     m_ActionName: Player/Fire[/Mouse/leftButton]
   - m_PersistentCalls:
@@ -471,7 +493,19 @@ MonoBehaviour:
     m_ActionId: 090408c6-7fc8-475b-9697-9858cf47b4cb
     m_ActionName: Player/Jump
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 215652513}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: OnSprint
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: de19ebd9-4ce8-4ad0-bbac-3e65e1b0ba8d
     m_ActionName: Player/Sprint[/Keyboard/shift]
   m_NeverAutoSwitchControlSchemes: 0
@@ -550,7 +584,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: aec988a8340b37045beab36c85e9fb12, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -830,6 +864,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f882713abdac3574593b91e135c50606, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerController: {fileID: 215652513}
   targetTransform: {fileID: 0}
   cameraPivot: {fileID: 1522364564}
   cameraTransform: {fileID: 0}
@@ -854,7 +889,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2105039042}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1522364564}

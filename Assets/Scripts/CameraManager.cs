@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CameraManager : MonoBehaviour
 {
-    private PlayerController playerController;
+    public PlayerController playerController;
 
     public Transform targetTransform; // The object the camera will follow
     public Transform cameraPivot; // The object the camera uses to pivot (Look up and down)
@@ -42,15 +42,14 @@ public class CameraManager : MonoBehaviour
 
     private void RotateCamera()
     {
-        lookAngle += (playerController.cameraInputX * cameraLookSpeed);
-        pivotAngle -= (playerController.cameraInputY  * cameraPivotSpeed);
-        pivotAngle = Mathf.Clamp(pivotAngle, minimumPivotAngle, maximumPivotAngle);
+        lookAngle += playerController.cameraInput.x * cameraLookSpeed;
+        pivotAngle -= playerController.cameraInput.y * cameraPivotSpeed;
 
         Vector3 rotation = Vector3.zero;
         rotation.y = lookAngle;
         Quaternion targetRotation = Quaternion.Euler(rotation);
         transform.rotation = targetRotation;
-        
+
         rotation = Vector3.zero;
         rotation.x = pivotAngle;
         targetRotation = Quaternion.Euler(rotation);
@@ -62,7 +61,7 @@ public class CameraManager : MonoBehaviour
         Vector3 direction = cameraTransform.position - cameraPivot.position;
         direction.Normalize();
         if (Physics.SphereCast(cameraPivot.transform.position, cameraCollisionRadius, direction, out RaycastHit hit, Mathf.Abs(targetPosition), collisionLayers))
-        {
+        { 
             float distance = Vector3.Distance(cameraPivot.position, hit.point);
             targetPosition = -distance - cameraCollisionOffset;
         }
@@ -80,5 +79,4 @@ public class CameraManager : MonoBehaviour
         RotateCamera();
         HandleCameraCollisions();
     }
-
 }
