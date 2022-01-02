@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     private PlayerInput playerControls;
     private Vector2 movementInput;
     public Vector2 cameraInput;
+    public float cameraZoomValue;
 
     Vector3 moveDirection;
     Transform cameraObject;
@@ -54,6 +55,8 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
     private void Awake()
     {
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
         rb = GetComponent<Rigidbody>();
         cameraManager = FindObjectOfType<CameraManager>();
         cameraObject = Camera.main.transform;
@@ -286,11 +289,15 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     public void OnJump(InputAction.CallbackContext context)
     {
         isJumping = context.action.triggered;
-        Debug.Log(isJumping);
     }
     public void OnSprint(InputAction.CallbackContext context)
     {
         isSprinting = context.action.triggered;
+    }
+    public void OnZoom(InputAction.CallbackContext context)
+    {
+        cameraZoomValue = context.ReadValue<float>();
+        Debug.Log(cameraZoomValue);
     }
 
     private void Update()
@@ -305,10 +312,12 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
     private void LateUpdate()
     {
-        cameraManager.HandleAllCameraMovement(cameraInput);
+        cameraManager.HandleAllCameraMovement(cameraInput, cameraZoomValue);
 
         //isInteracting = animator.GetBool("isInteracting");
         //isJumping = animator.GetBool("isJumping");
         //animator.SetBool("isGrounded", isGrounded);
     }
+
+
 }

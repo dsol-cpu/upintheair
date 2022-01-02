@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,7 +7,7 @@ public class CameraManager : MonoBehaviour
 {
     public Transform targetTransform; // The object the camera will follow
     public Transform cameraPivot; // The object the camera uses to pivot (Look up and down)
-    public Transform cameraTransform; //The transform of the actual camrea in the scene
+    public Transform cameraTransform; //The transform of the actual camera in the scene
     public LayerMask collisionLayers; // The layers we want our camera to collide with
     private float defaultPosition;
     private Vector3 cameraFollowVelocity = Vector3.zero;
@@ -30,10 +31,10 @@ public class CameraManager : MonoBehaviour
         defaultPosition = cameraTransform.localPosition.z;
     }
 
-    private void FollowTarget()
+    private void FollowTarget(float cameraZoomValue)
     {
         Vector3 targetPosition = Vector3.SmoothDamp(transform.position, targetTransform.position, ref cameraFollowVelocity, cameraFollowSpeed);
-
+        targetPosition.z += cameraZoomValue;
         transform.position = targetPosition;
     }
 
@@ -74,9 +75,9 @@ public class CameraManager : MonoBehaviour
         cameraVectorPosition.z = Mathf.Lerp(cameraTransform.localPosition.z, targetPosition, 0.2f);
         cameraTransform.localPosition = cameraVectorPosition;
     }
-    public void HandleAllCameraMovement(Vector2 cameraInput)
+    public void HandleAllCameraMovement(Vector2 cameraInput, float cameraZoomValue)
     {
-        FollowTarget();
+        FollowTarget(cameraZoomValue);
         RotateCamera(cameraInput);
         HandleCameraCollisions();
     }
