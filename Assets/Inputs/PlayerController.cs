@@ -274,6 +274,8 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     public void OnMove(InputAction.CallbackContext context)
     {
         movementInput = context.ReadValue<Vector2>();
+        //Debug.Log(context.phase);
+        //Debug.Log(movementInput);
     }
 
     public void OnLook(InputAction.CallbackContext context)

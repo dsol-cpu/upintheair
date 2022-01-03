@@ -30,9 +30,9 @@ public class CameraManager : MonoBehaviour
     
     [Header("Camera Zoom Settings")]
     private float zoomDistance;
-    private float minZoomDistance = .1f;
+    private float minZoomDistance = .01f;
     private float maxZoomDistance = 10f;
-    private float zoomSpeed = 250;
+    private float zoomSpeed = 50f;
 
     private void Awake()
     {
@@ -76,7 +76,7 @@ public class CameraManager : MonoBehaviour
 
     private void HandleCameraCollisions()
     {
-        float targetPosition = defaultPosition;
+        /* float targetPosition = defaultPosition;
         Vector3 direction = cameraTransform.position - cameraPivot.position;
         direction.Normalize();
         if (Physics.SphereCast(cameraPivot.transform.position, cameraCollisionRadius, direction, out RaycastHit hit, Mathf.Abs(targetPosition), collisionLayers))
@@ -90,7 +90,7 @@ public class CameraManager : MonoBehaviour
         }
 
         cameraVectorPosition.z = Mathf.Lerp(cameraTransform.localPosition.z, targetPosition, 0.2f);
-        cameraTransform.localPosition = cameraVectorPosition;
+        cameraTransform.localPosition = cameraVectorPosition; */
     }
 
     private void CameraZoom(Vector2 cameraScrollValue) {
@@ -98,8 +98,9 @@ public class CameraManager : MonoBehaviour
         Debug.Log(cameraScrollValue);
         zoomDistance += cameraScrollValue.y * Time.deltaTime * zoomSpeed;
         zoomDistance = Mathf.Clamp(zoomDistance,minZoomDistance,maxZoomDistance);
-        Debug.Log(zoomDistance);
-        transform.position = targetTransform.position - (transform.forward * zoomDistance) + new Vector3(0,1,0);
+        //Debug.Log(zoomDistance);
+        transform.position = targetTransform.position - new Vector3(transform.right.x *zoomDistance, transform.up.y, transform.forward.z);
+
 
     }
 
