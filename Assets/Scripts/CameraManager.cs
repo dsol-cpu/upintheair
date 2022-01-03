@@ -1,61 +1,74 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class CameraManager : MonoBehaviour
 {
+    [Header("Camera Target and Position Settings")]
     public Transform targetTransform; // The object the camera will follow
     public Transform cameraPivot; // The object the camera uses to pivot (Look up and down)
     public Transform cameraTransform; //The transform of the actual camera in the scene
     public LayerMask collisionLayers; // The layers we want our camera to collide with
     private float defaultPosition; //set to local 'Z' position of the camera
+
+    [Header("Camera Speed and Behavior Settings")]
     private Vector3 cameraFollowVelocity = Vector3.zero;
     private Vector3 cameraVectorPosition;
-    
-    public float cameraCollisionOffset = 0.2f; // How much camera will repel from objects
+    public float cameraCollisionOffset = 0.2f; // The value at which the camera will repel objects
     public float minimumCollisionOffset = 0.2f;
     public float cameraCollisionRadius = 2f;
-    public float cameraFollowSpeed = 0.05f;
-    public float cameraLookSpeed = .5f;
-    public float cameraPivotSpeed = .5f;
-    public float cameraScrollValue;
-
-
-    public float lookAngle; //Camera looking left and right
-    public float pivotAngle; //Camera looking up and down
-    public float minimumPivotAngle = -60;
-    public float maximumPivotAngle = 35;
+    public float cameraFollowSpeed = 0.05f; // How fast the camera follows the target
+    public float cameraHorizSpeed = .5f; // How fast the camera will be in looking left and right
+    public float cameraVertSpeed = .5f; // How fast the camera will be in looking up and down
+    
+    [Header("Camera Mouse Settings")]
+    public float vertAxisAngle; // The current vertical angle of the camera
+    public float horizAxisAngle; // The current horizontal angle of the camera
+    public float minHorizAxisAngle = -90; // Minimum angle for the camera pivot
+    public float maxHorizAxisAngle = 90; // Maximum angle for the camera pivot
+    
+    [Header("Camera Zoom Settings")]
+    private float zoomDistance;
+    private float minZoomDistance = .1f;
+    private float maxZoomDistance = 10f;
+    private float zoomSpeed = 250;
 
     private void Awake()
     {
+        // Gets transform of target (player)
         targetTransform = FindObjectOfType<PlayerController>().transform;
+        // 'cameraTransform' equals the main unity camera transform
         cameraTransform = Camera.main.transform;
+        // The default position of the camera is the main camera's local 'Z' position
         defaultPosition = cameraTransform.localPosition.z;
 
     }
 
     private void FollowTarget()
     {
-        Vector3 targetPosition = Vector3.SmoothDamp(transform.position, targetTransform.position, ref cameraFollowVelocity, cameraFollowSpeed);
-
+        Vector3 targetPosition = Vector3.SmoothDamp(transform.position, targetTransform.position + (cameraTransform.forward * zoomDistance) + new Vector3(0,10,0), ref cameraFollowVelocity, cameraFollowSpeed);
         transform.position = targetPosition;
     }
 
     private void RotateCamera(Vector2 cameraInput)
     {
-        lookAngle += cameraInput.x * cameraLookSpeed;
-        pivotAngle -= cameraInput.y * cameraPivotSpeed;
+        // Control Camera Speed
+        vertAxisAngle += cameraInput.x * cameraHorizSpeed;
+        horizAxisAngle -= cameraInput.y * cameraVertSpeed;
 
-        if (pivotAngle >= maximumPivotAngle) pivotAngle = maximumPivotAngle;
-        if (pivotAngle <= minimumPivotAngle) pivotAngle = minimumPivotAngle;
+        // Make sure horizAxisAngle cannot go above or below min and max, respectively
+        horizAxisAngle = Mathf.Clamp(horizAxisAngle,minHorizAxisAngle,maxHorizAxisAngle);
         
+        // Set Rotation variable for the camera
         Vector3 rotation = Vector3.zero;
-        rotation.y = lookAngle;
+
+        rotation.y = vertAxisAngle;
         Quaternion targetRotation = Quaternion.Euler(rotation);
         transform.rotation = targetRotation;
 
         rotation = Vector3.zero;
-        rotation.x = pivotAngle;
+        rotation.x = horizAxisAngle;
 
         targetRotation = Quaternion.Euler(rotation);
         cameraPivot.localRotation = targetRotation;
@@ -80,13 +93,14 @@ public class CameraManager : MonoBehaviour
         cameraTransform.localPosition = cameraVectorPosition;
     }
 
-    private void Zoom(Vector2 value)
-    {
-        //cameraVectorPosition.x -= value.x;
-        //cameraVectorPosition.y -= value.y;
-       
-        targetTransform.position += targetTransform.forward * value.y *.0005f;
-        
+    private void CameraZoom(Vector2 cameraScrollValue) {
+
+        Debug.Log(cameraScrollValue);
+        zoomDistance += cameraScrollValue.y * Time.deltaTime * zoomSpeed;
+        zoomDistance = Mathf.Clamp(zoomDistance,minZoomDistance,maxZoomDistance);
+        Debug.Log(zoomDistance);
+        transform.position = targetTransform.position - (transform.forward * zoomDistance) + new Vector3(0,1,0);
+
     }
 
     public void HandleAllCameraMovement(Vector2 cameraInput, Vector2 cameraScrollValue)
@@ -94,7 +108,7 @@ public class CameraManager : MonoBehaviour
         FollowTarget();
         RotateCamera(cameraInput);
         HandleCameraCollisions();
-
-        Zoom(cameraScrollValue);
+        CameraZoom(cameraScrollValue);
     }
+
 }

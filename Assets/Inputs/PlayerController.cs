@@ -296,6 +296,10 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     {
         isSprinting = context.action.triggered;
     }
+    public void OnZoom_Camera(InputAction.CallbackContext context)
+    {
+        cameraScrollValue = context.ReadValue<Vector2>();
+    }
 
     private void Update()
     {
@@ -316,12 +320,4 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
         //animator.SetBool("isGrounded", isGrounded);
     }
 
-    public void OnZoom_Camera(InputAction.CallbackContext context)
-    {
-        
-        cameraScrollValue = context.ReadValue<Vector2>();
-        if(cameraScrollValue.y > 0) { Debug.Log("Scroll UP"); }
-        if (cameraScrollValue.y < 0) { Debug.Log("Scroll DOWN"); }
-
-    }
 }
