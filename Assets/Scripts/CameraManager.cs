@@ -30,8 +30,8 @@ public class CameraManager : MonoBehaviour
     
     [Header("Camera Zoom Settings")]
     private float zoomDistance;
-    private float minZoomDistance = .01f;
-    private float maxZoomDistance = 10f;
+    private float minZoomDistance = .5f;
+    private float maxZoomDistance = 1f;
     private float zoomSpeed = 50f;
 
     private void Awake()
@@ -47,7 +47,7 @@ public class CameraManager : MonoBehaviour
 
     private void FollowTarget()
     {
-        Vector3 targetPosition = Vector3.SmoothDamp(transform.position, targetTransform.position + (cameraTransform.forward * zoomDistance) + new Vector3(0,10,0), ref cameraFollowVelocity, cameraFollowSpeed);
+        Vector3 targetPosition = Vector3.SmoothDamp(transform.position, targetTransform.position , ref cameraFollowVelocity, cameraFollowSpeed);
         transform.position = targetPosition;
     }
 
@@ -99,9 +99,11 @@ public class CameraManager : MonoBehaviour
         zoomDistance += cameraScrollValue.y * Time.deltaTime * zoomSpeed;
         zoomDistance = Mathf.Clamp(zoomDistance,minZoomDistance,maxZoomDistance);
         //Debug.Log(zoomDistance);
-        transform.position = targetTransform.position - new Vector3(transform.right.x *zoomDistance, transform.up.y, transform.forward.z);
-
-
+        //transform.position = targetTransform.position - (transform.forward * zoomDistance);
+        //new Vector3(targetTransform.position.x,targetTransform.position.y + zoomDistance,targetTransform.position.z + zoomDistance);
+        Vector3.ClampMagnitude(transform.position, maxZoomDistance);
+        //transform.Rotate(2f *zoomDistance,0,0);
+        transform.Translate(0, targetTransform.position.y * zoomDistance,-targetTransform.position.z * zoomDistance);
     }
 
     public void HandleAllCameraMovement(Vector2 cameraInput, Vector2 cameraScrollValue)
