@@ -11,7 +11,7 @@ public class CameraManager : MonoBehaviour
     public Transform cameraTransform; //The transform of the actual camera in the scene
     public LayerMask collisionLayers; // The layers we want our camera to collide with
     private float defaultPosition; //set to local 'Z' position of the camera
-
+    /*      */
     [Header("Camera Speed and Behavior Settings")]
     private Vector3 cameraFollowVelocity = Vector3.zero;
     private Vector3 cameraVectorPosition;
@@ -21,19 +21,21 @@ public class CameraManager : MonoBehaviour
     public float cameraFollowSpeed = 0.05f; // How fast the camera follows the target
     public float cameraHorizSpeed = .5f; // How fast the camera will be in looking left and right
     public float cameraVertSpeed = .5f; // How fast the camera will be in looking up and down
-    
+    /*      */
     [Header("Camera Mouse Settings")]
     public float vertAxisAngle; // The current vertical angle of the camera
     public float horizAxisAngle; // The current horizontal angle of the camera
     public float minHorizAxisAngle = -90; // Minimum angle for the camera pivot
     public float maxHorizAxisAngle = 90; // Maximum angle for the camera pivot
-    
+    private float minHorizAngleConst = -90;
+    private float maxHorizAxisAngleConst = 90;
+    /*      */
     [Header("Camera Zoom Settings")]
     private float zoomDistance;
     private float minZoomDistance = .5f;
     private float maxZoomDistance = 10f;
     private float zoomSpeed = 50f;
-
+    /*      */
     private void Awake()
     {
         // Gets transform of target (player)
@@ -100,7 +102,22 @@ public class CameraManager : MonoBehaviour
         zoomDistance = Mathf.Clamp(zoomDistance,minZoomDistance,maxZoomDistance);
         //Debug.Log(zoomDistance);
         transform.position = targetTransform.position - (transform.forward * zoomDistance) + transform.up * zoomDistance;
-        transform.Rotate(0,1,0);
+        //transform.Rotate(-2*zoomDistance,0,0);
+        transform.Translate(0,1*zoomDistance, -2*zoomDistance);
+
+
+        if (cameraScrollValue.y > 0 || cameraScrollValue.y < 0) {
+            if (maxHorizAxisAngle > 35) maxHorizAxisAngle -= 5f;
+            if (minHorizAxisAngle < 35) minHorizAxisAngle += 5f;          
+            Mathf.Clamp(maxHorizAxisAngle,0,90);
+            Mathf.Clamp(minHorizAxisAngle,-90,0);
+        } else if (zoomDistance < 1) {
+            if (maxHorizAxisAngle < 90) maxHorizAxisAngle += 5f;
+            if (minHorizAxisAngle > -90) minHorizAxisAngle += 5f;    
+
+            maxHorizAxisAngle = maxHorizAxisAngleConst;
+            minHorizAxisAngle = minHorizAngleConst;
+        }
 
 
     }
