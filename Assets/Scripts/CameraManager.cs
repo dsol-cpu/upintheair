@@ -34,7 +34,7 @@ public class CameraManager : MonoBehaviour
     private float zoomDistance;
     private float minZoomDistance = .5f;
     private float maxZoomDistance = 10f;
-    private float zoomSpeed = 50f;
+    private float zoomSpeed = 5f;
     /*      */
     private void Awake()
     {
@@ -49,7 +49,7 @@ public class CameraManager : MonoBehaviour
 
     private void FollowTarget()
     {
-        Vector3 targetPosition = Vector3.SmoothDamp(transform.position, targetTransform.position * zoomDistance, ref cameraFollowVelocity, cameraFollowSpeed);
+        Vector3 targetPosition = Vector3.SmoothDamp(transform.position, targetTransform.position, ref cameraFollowVelocity, cameraFollowSpeed);
         transform.position = targetPosition;
     }
 
@@ -78,7 +78,7 @@ public class CameraManager : MonoBehaviour
 
     private void HandleCameraCollisions()
     {
-        /* float targetPosition = defaultPosition;
+        float targetPosition = defaultPosition;
         Vector3 direction = cameraTransform.position - cameraPivot.position;
         direction.Normalize();
         if (Physics.SphereCast(cameraPivot.transform.position, cameraCollisionRadius, direction, out RaycastHit hit, Mathf.Abs(targetPosition), collisionLayers))
@@ -92,33 +92,23 @@ public class CameraManager : MonoBehaviour
         }
 
         cameraVectorPosition.z = Mathf.Lerp(cameraTransform.localPosition.z, targetPosition, 0.2f);
-        cameraTransform.localPosition = cameraVectorPosition; */
+        cameraTransform.localPosition = cameraVectorPosition;
     }
 
     private void CameraZoom(Vector2 cameraScrollValue) {
 
+        float zDistance = transform.position.z - targetTransform.position.z;
+        float cameraDistance = Vector3.Distance(transform.position, targetTransform.position);
+        float zAngle = Mathf.Acos(zDistance / cameraDistance);
+
+        float yDistance = transform.position.y - targetTransform.position.y;
+        float yAngle = Mathf.Acos(zDistance / cameraDistance);
+
         Debug.Log(cameraScrollValue);
-        zoomDistance += cameraScrollValue.y * Time.deltaTime * zoomSpeed;
+        zoomDistance += -cameraScrollValue.y * Time.deltaTime * zoomSpeed;
         zoomDistance = Mathf.Clamp(zoomDistance,minZoomDistance,maxZoomDistance);
-        //Debug.Log(zoomDistance);
-        transform.position = targetTransform.position - (transform.forward * zoomDistance) + transform.up * zoomDistance;
-        //transform.Rotate(-2*zoomDistance,0,0);
-        transform.Translate(0,1*zoomDistance, -2*zoomDistance);
-
-
-        if (cameraScrollValue.y > 0 || cameraScrollValue.y < 0) {
-            if (maxHorizAxisAngle > 35) maxHorizAxisAngle -= 5f;
-            if (minHorizAxisAngle < 35) minHorizAxisAngle += 5f;          
-            Mathf.Clamp(maxHorizAxisAngle,0,90);
-            Mathf.Clamp(minHorizAxisAngle,-90,0);
-        } else if (zoomDistance < 1) {
-            if (maxHorizAxisAngle < 90) maxHorizAxisAngle += 5f;
-            if (minHorizAxisAngle > -90) minHorizAxisAngle += 5f;    
-
-            maxHorizAxisAngle = maxHorizAxisAngleConst;
-            minHorizAxisAngle = minHorizAngleConst;
-        }
-
+        transform.position = targetTransform.position - (transform.forward * zoomDistance) + (transform.up * zoomDistance);
+        Camera.main.transform.LookAt(targetTransform);
 
     }
 
