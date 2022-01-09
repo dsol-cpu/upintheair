@@ -44,7 +44,6 @@ public class CameraManager : MonoBehaviour
         cameraTransform = Camera.main.transform;
         // The default position of the camera is the main camera's local 'Z' position
         defaultPosition = cameraTransform.localPosition.z;
-
     }
 
     private void FollowTarget()
@@ -104,7 +103,7 @@ public class CameraManager : MonoBehaviour
         float yDistance = transform.position.y - targetTransform.position.y;
         float yAngle = Mathf.Acos(zDistance / cameraDistance);
 
-        Debug.Log(cameraScrollValue);
+        //Debug.Log(cameraScrollValue);
         zoomDistance += -cameraScrollValue.y * Time.deltaTime * zoomSpeed;
         zoomDistance = Mathf.Clamp(zoomDistance,minZoomDistance,maxZoomDistance);
         transform.position = targetTransform.position - (transform.forward * zoomDistance) + (transform.up * zoomDistance);

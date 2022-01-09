@@ -9,17 +9,19 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     public float smoothTime = 1f;
     private Vector3 velocity = Vector3.zero;
     private PlayerInput playerControls;
+    // Movement for X and Y
     private Vector2 movementInput;
     public Vector2 cameraInput;
     public Vector2 cameraScrollValue;
 
+    // Where the player should go based on player input, and the angle at which the player moves
     Vector3 moveDirection;
     Transform cameraObject;
     Rigidbody rb;
 
     public float moveAmount;
     float hVelocity = 0f;
-    float vVecolity = 0f;
+    float vVelocity = 0f;
     float hCurrent = 0f;
     float vCurrent = 0f;
 
@@ -140,7 +142,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     private void HandleMovementInput()
     {
         float newH = Mathf.SmoothDamp(hCurrent, movementInput.x, ref hVelocity, smoothTime);
-        float newV = Mathf.SmoothDamp(vCurrent, movementInput.y, ref vVecolity, smoothTime);
+        float newV = Mathf.SmoothDamp(vCurrent, movementInput.y, ref vVelocity, smoothTime);
         hCurrent = newH;
         vCurrent = newV;
 
@@ -178,29 +180,32 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
     private void HandleMovement()
     {
+        print(cameraObject.forward);
 
-        moveDirection.x = cameraObject.forward.x * vCurrent + cameraObject.right.x * hCurrent;
-        moveDirection.y = 0;
-        moveDirection.z = cameraObject.forward.z * vCurrent + cameraObject.right.z * hCurrent;
+        Vector3 movement = new Vector3(hCurrent, 0,vCurrent) * Time.deltaTime;
+
+        movement = cameraObject.TransformDirection(movement);
+        movement.y = 0;
+        movement.Normalize();
 
         if (isSprinting)
         {
-            moveDirection *= sprintingSpeed;
+            movement *= sprintingSpeed;
         }
         else
         {
             if (moveAmount >= 0.5f)
             {
-                moveDirection *= runningSpeed;
+                movement *= runningSpeed;
             }
             else
             {
-                moveDirection *= walkingSpeed;
+                movement *= walkingSpeed;
             }
         }
 
-        rb.velocity = moveDirection;
-
+        rb.velocity = movement;
+        print(movement);
     }
 
     private void HandleJumping()
@@ -306,6 +311,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     private void Update()
     {
         HandleAllMovement();
+        Cursor.visible = false;
     }
 
     private void FixedUpdate()
