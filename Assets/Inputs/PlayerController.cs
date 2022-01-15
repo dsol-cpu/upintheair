@@ -296,8 +296,12 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     }
     public void OnZoom(InputAction.CallbackContext context)
     {
-        cameraZoomValue = context.ReadValue<float>();
-        Debug.Log(cameraZoomValue);
+        cameraZoomValue = context.ReadValue<Vector2>().y;
+    }
+
+    public void OnInteract(InputAction.CallbackContext context)
+    {
+        throw new System.NotImplementedException();
     }
 
     private void Update()
