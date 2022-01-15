@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -46,7 +47,7 @@ public class CameraManager : MonoBehaviour
         defaultPosition = cameraTransform.localPosition.z;
     }
 
-    private void FollowTarget()
+    private void FollowTarget(float cameraZoomValue)
     {
         Vector3 targetPosition = Vector3.SmoothDamp(transform.position, targetTransform.position, ref cameraFollowVelocity, cameraFollowSpeed);
         transform.position = targetPosition;
@@ -113,7 +114,7 @@ public class CameraManager : MonoBehaviour
 
     public void HandleAllCameraMovement(Vector2 cameraInput, Vector2 cameraScrollValue)
     {
-        FollowTarget();
+        FollowTarget(cameraZoomValue);
         RotateCamera(cameraInput);
         HandleCameraCollisions();
         CameraZoom(cameraScrollValue);

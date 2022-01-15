@@ -57,6 +57,8 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
     private void Awake()
     {
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
         rb = GetComponent<Rigidbody>();
         cameraManager = FindObjectOfType<CameraManager>();
         cameraObject = Camera.main.transform;
@@ -296,7 +298,6 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     public void OnJump(InputAction.CallbackContext context)
     {
         isJumping = context.action.triggered;
-        Debug.Log(isJumping);
     }
 
     public void OnSprint(InputAction.CallbackContext context)
@@ -327,5 +328,4 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
         //isJumping = animator.GetBool("isJumping");
         //animator.SetBool("isGrounded", isGrounded);
     }
-
 }
