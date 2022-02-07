@@ -35,7 +35,7 @@ public class CameraManager : MonoBehaviour
     private float zoomDistance;
     private float minZoomDistance = .5f;
     private float maxZoomDistance = 10f;
-    private float zoomSpeed = 5f;
+    private float zoomSpeed = 0.25f;
     /*      */
     private void Awake()
     {
@@ -47,13 +47,13 @@ public class CameraManager : MonoBehaviour
         defaultPosition = cameraTransform.localPosition.z;
     }
 
-    private void FollowTarget(float cameraZoomValue)
+    private void FollowTarget()
     {
         Vector3 targetPosition = Vector3.SmoothDamp(transform.position, targetTransform.position, ref cameraFollowVelocity, cameraFollowSpeed);
         transform.position = targetPosition;
     }
 
-    private void RotateCamera(Vector2 cameraInput)
+    public void RotateCamera(Vector2 cameraInput)
     {
         // Control Camera Speed
         vertAxisAngle += cameraInput.x * cameraHorizSpeed;
@@ -104,18 +104,16 @@ public class CameraManager : MonoBehaviour
         float yDistance = transform.position.y - targetTransform.position.y;
         float yAngle = Mathf.Acos(zDistance / cameraDistance);
 
-        //Debug.Log(cameraScrollValue);
+        Debug.Log(cameraScrollValue);
         zoomDistance += -cameraScrollValue.y * Time.deltaTime * zoomSpeed;
         zoomDistance = Mathf.Clamp(zoomDistance,minZoomDistance,maxZoomDistance);
         transform.position = targetTransform.position - (transform.forward * zoomDistance) + (transform.up * zoomDistance);
         Camera.main.transform.LookAt(targetTransform);
-
     }
 
-    public void HandleAllCameraMovement(Vector2 cameraInput, Vector2 cameraScrollValue)
-    {
-        FollowTarget(cameraZoomValue);
-        RotateCamera(cameraInput);
+    public void HandleAllCameraMovement(Vector2 cameraInput, Vector2 cameraScrollValue) {
+        //print("CameraInput" + cameraInput);
+        FollowTarget();
         HandleCameraCollisions();
         CameraZoom(cameraScrollValue);
     }

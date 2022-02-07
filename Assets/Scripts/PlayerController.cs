@@ -80,6 +80,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
             playerControls.Player.Jump.performed += ctx => isJumping = true;
 
             playerControls.Player.Look.performed += ctx => OnLook(ctx);
+
             playerControls.Player.Zoom_Camera.performed += ctx => OnZoom_Camera(ctx);
 
             playerControls.Player.Sprint.performed += ctx => OnSprint(ctx);
@@ -182,7 +183,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
     private void HandleMovement()
     {
-        print(cameraObject.forward);
+        //print(cameraObject.forward);
 
         Vector3 movement = new Vector3(hCurrent, 0,vCurrent) * Time.deltaTime;
 
@@ -207,7 +208,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
         }
 
         rb.velocity = movement;
-        print(movement);
+        //print(movement);
     }
 
     private void HandleJumping()
@@ -288,6 +289,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     public void OnLook(InputAction.CallbackContext context)
     {
         cameraInput = context.ReadValue<Vector2>();
+        cameraManager.RotateCamera(cameraInput);
     }
 
     public void OnFire(InputAction.CallbackContext context)
@@ -323,7 +325,6 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     private void LateUpdate()
     {
         cameraManager.HandleAllCameraMovement(cameraInput, cameraScrollValue);
-
         //isInteracting = animator.GetBool("isInteracting");
         //isJumping = animator.GetBool("isJumping");
         //animator.SetBool("isGrounded", isGrounded);

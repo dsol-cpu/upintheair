@@ -69,7 +69,8 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""id"": ""de19ebd9-4ce8-4ad0-bbac-3e65e1b0ba8d"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
-                    ""interactions"": """"
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 },
                 {
                     ""name"": ""Zoom_Camera"",
@@ -77,7 +78,8 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""id"": ""0e0c2e58-17ab-451d-9390-7829f24e3b88"",
                     ""expectedControlType"": ""Axis"",
                     ""processors"": """",
-                    ""interactions"": """"
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
