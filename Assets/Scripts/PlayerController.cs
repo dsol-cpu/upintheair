@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     float vCurrent = 0f;
 
     [Header("Actions")]
-    private bool isInteracting;
+    public bool isInteracting;
 
     [Header("Animator")]
     Animator animator;
@@ -311,10 +311,14 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
         cameraScrollValue = context.ReadValue<Vector2>();
     }
 
+    public void OnInteract(InputAction.CallbackContext context)
+    {
+        isInteracting = context.action.triggered;
+    }
+
     private void Update()
     {
         HandleAllMovement();
-        Cursor.visible = false;
     }
 
     private void FixedUpdate()
