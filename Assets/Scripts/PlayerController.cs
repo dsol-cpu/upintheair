@@ -44,6 +44,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     public bool isJumping;
     public bool isSprinting;
     public bool isGrounded;
+    public bool stopMoving = true;
 
     [Header("Movement Speeds")]
     public float walkingSpeed = 1.5f;
@@ -73,9 +74,9 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
         if (playerControls == null)
         {
             playerControls = new PlayerInput();
-            playerControls.Player.Move.started += ctx => OnMove(ctx);
+            //playerControls.Player.Move.started += ctx => OnMove(ctx);
             playerControls.Player.Move.performed += ctx => OnMove(ctx);
-            playerControls.Player.Move.canceled += ctx => OnMove(ctx);
+            //playerControls.Player.Move.canceled += ctx => OnMove(ctx);
 
             playerControls.Player.Jump.performed += ctx => isJumping = true;
 
@@ -144,10 +145,13 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
     private void HandleMovementInput()
     {
-        float newH = Mathf.SmoothDamp(hCurrent, movementInput.x, ref hVelocity, smoothTime);
-        float newV = Mathf.SmoothDamp(vCurrent, movementInput.y, ref vVelocity, smoothTime);
-        hCurrent = newH;
-        vCurrent = newV;
+        /*
+                float newH = Mathf.SmoothDamp(hCurrent, movementInput.x, ref hVelocity, smoothTime);
+                float newV = Mathf.SmoothDamp(vCurrent, movementInput.y, ref vVelocity, smoothTime);
+                hCurrent = newH;
+                vCurrent = newV;*/
+        hCurrent = movementInput.x;
+        vCurrent = movementInput.y;
 
         moveAmount = Mathf.Clamp01(Mathf.Abs(hCurrent) + Mathf.Abs(vCurrent));
         UpdateAnimatorValues(0, moveAmount, isSprinting);
@@ -235,6 +239,10 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
         Quaternion playerRotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
 
         transform.rotation = playerRotation;
+        if(transform.rotation == targetRotation)
+        {
+            stopMoving = true;
+        }
     }
 
     private void HandleFallingAndLanding()
@@ -279,9 +287,13 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
         HandleRotation();
     }
 
+    private void HandleInteraction() { 
+    }
+
     public void OnMove(InputAction.CallbackContext context)
     {
         movementInput = context.ReadValue<Vector2>();
+        stopMoving = false;
         //Debug.Log(context.phase);
         //Debug.Log(movementInput);
     }
@@ -318,7 +330,8 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
     private void Update()
     {
-        HandleAllMovement();
+        if(!stopMoving)
+            HandleAllMovement();
     }
 
     private void FixedUpdate()

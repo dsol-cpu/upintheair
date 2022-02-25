@@ -15,6 +15,7 @@ public class DialogueManager : MonoBehaviour
     public float letterDelay = 0.1f;
     public float letterMultiplier = 0.5f;
 
+    //private PlayerInput playerInput;
     public KeyCode DialogueInput = KeyCode.F;
 
     public string Names;
@@ -32,6 +33,7 @@ public class DialogueManager : MonoBehaviour
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
+        //playerInput = GetComponent<PlayerInput>();
         dialogueText.text = "";
     }
 

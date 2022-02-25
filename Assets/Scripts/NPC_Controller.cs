@@ -32,7 +32,7 @@ public class NPC_Controller : MonoBehaviour
     public void OnTriggerStay(Collider other)
     {
         this.gameObject.GetComponent<NPC_Controller>().enabled = true;
-        FindObjectOfType<DialogueManager>().EnterRangeOfNPC();
+        //FindObjectOfType<DialogueManager>().EnterRangeOfNPC();
         if ((other.gameObject.tag == "Player") && Input.GetKeyDown(KeyCode.F))
         {
             this.gameObject.GetComponent<NPC_Controller>().enabled = true;
