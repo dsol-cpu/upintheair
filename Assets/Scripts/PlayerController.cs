@@ -44,7 +44,6 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     public bool isJumping;
     public bool isSprinting;
     public bool isGrounded;
-    public bool stopMoving = true;
 
     [Header("Movement Speeds")]
     public float walkingSpeed = 1.5f;
@@ -238,11 +237,9 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
         Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
         Quaternion playerRotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
 
-        transform.rotation = playerRotation;
-        if(transform.rotation == targetRotation)
-        {
-            stopMoving = true;
-        }
+        if (movementInput.x != 0 || movementInput.y != 0)
+            transform.rotation = playerRotation;
+
     }
 
     private void HandleFallingAndLanding()
@@ -293,7 +290,6 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     public void OnMove(InputAction.CallbackContext context)
     {
         movementInput = context.ReadValue<Vector2>();
-        stopMoving = false;
         //Debug.Log(context.phase);
         //Debug.Log(movementInput);
     }
@@ -330,7 +326,6 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
     private void Update()
     {
-        if(!stopMoving)
             HandleAllMovement();
     }
 
