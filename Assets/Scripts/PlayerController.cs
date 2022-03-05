@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 {
-    private CameraManager cameraManager;
+    //private CameraManager cameraManager;
     public float smoothTime = 1f;
     private Vector3 velocity = Vector3.zero;
     private PlayerInput playerControls;
@@ -60,7 +60,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         rb = GetComponent<Rigidbody>();
-        cameraManager = FindObjectOfType<CameraManager>();
+        //cameraManager = FindObjectOfType<CameraManager>();
         cameraObject = Camera.main.transform;
 
         //animator = GetComponent<Animator>();
@@ -297,7 +297,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     public void OnLook(InputAction.CallbackContext context)
     {
         cameraInput = context.ReadValue<Vector2>();
-        cameraManager.RotateCamera(cameraInput);
+        //cameraManager.RotateCamera(cameraInput);
     }
 
     public void OnFire(InputAction.CallbackContext context)
@@ -317,6 +317,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
     public void OnZoom_Camera(InputAction.CallbackContext context)
     {
         cameraScrollValue = context.ReadValue<Vector2>();
+        //cameraManager.CameraZoom(cameraScrollValue);
     }
 
     public void OnInteract(InputAction.CallbackContext context)
@@ -326,7 +327,6 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
     private void Update()
     {
-            HandleAllMovement();
     }
 
     private void FixedUpdate()
@@ -336,7 +336,9 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
     private void LateUpdate()
     {
-        cameraManager.HandleAllCameraMovement(cameraInput, cameraScrollValue);
+        HandleAllMovement();
+
+        //cameraManager.HandleAllCameraMovement(cameraInput, cameraScrollValue);
         //isInteracting = animator.GetBool("isInteracting");
         //isJumping = animator.GetBool("isJumping");
         //animator.SetBool("isGrounded", isGrounded);
