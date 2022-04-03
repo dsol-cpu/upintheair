@@ -80,6 +80,24 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Interact"",
+                    ""type"": ""Button"",
+                    ""id"": ""edc8002f-956e-407f-9511-d0b87334b65e"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Exit"",
+                    ""type"": ""Button"",
+                    ""id"": ""2abbd806-186f-4bca-87c1-2492447fa4b9"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -346,32 +364,26 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""action"": ""Zoom_Camera"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
-                }
-            ]
-        },
-        {
-            ""name"": ""DialogueManager"",
-            ""id"": ""607016eb-f583-40c7-83ee-d6168d9bbab4"",
-            ""actions"": [
-                {
-                    ""name"": ""Activate"",
-                    ""type"": ""Button"",
-                    ""id"": ""3ca8bbd7-db26-4900-b6e0-d376e9946108"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                }
-            ],
-            ""bindings"": [
+                },
                 {
                     ""name"": """",
-                    ""id"": ""62776fe0-a704-4bf0-9403-ad7d6ca5060b"",
+                    ""id"": ""43b7e32b-6ef7-4d85-86f3-0a7ea5176003"",
                     ""path"": ""<Keyboard>/e"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Activate"",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d6662dc9-ca2a-4749-9845-5b5a57265327"",
+                    ""path"": ""<Keyboard>/t"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Exit"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -985,9 +997,8 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
         m_Player_Sprint = m_Player.FindAction("Sprint", throwIfNotFound: true);
         m_Player_Zoom_Camera = m_Player.FindAction("Zoom_Camera", throwIfNotFound: true);
-        // DialogueManager
-        m_DialogueManager = asset.FindActionMap("DialogueManager", throwIfNotFound: true);
-        m_DialogueManager_Activate = m_DialogueManager.FindAction("Activate", throwIfNotFound: true);
+        m_Player_Interact = m_Player.FindAction("Interact", throwIfNotFound: true);
+        m_Player_Exit = m_Player.FindAction("Exit", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1066,6 +1077,8 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Jump;
     private readonly InputAction m_Player_Sprint;
     private readonly InputAction m_Player_Zoom_Camera;
+    private readonly InputAction m_Player_Interact;
+    private readonly InputAction m_Player_Exit;
     public struct PlayerActions
     {
         private @PlayerInput m_Wrapper;
@@ -1076,6 +1089,8 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         public InputAction @Jump => m_Wrapper.m_Player_Jump;
         public InputAction @Sprint => m_Wrapper.m_Player_Sprint;
         public InputAction @Zoom_Camera => m_Wrapper.m_Player_Zoom_Camera;
+        public InputAction @Interact => m_Wrapper.m_Player_Interact;
+        public InputAction @Exit => m_Wrapper.m_Player_Exit;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1103,6 +1118,12 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @Zoom_Camera.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnZoom_Camera;
                 @Zoom_Camera.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnZoom_Camera;
                 @Zoom_Camera.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnZoom_Camera;
+                @Interact.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnInteract;
+                @Interact.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnInteract;
+                @Interact.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnInteract;
+                @Exit.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnExit;
+                @Exit.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnExit;
+                @Exit.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnExit;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -1125,43 +1146,16 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @Zoom_Camera.started += instance.OnZoom_Camera;
                 @Zoom_Camera.performed += instance.OnZoom_Camera;
                 @Zoom_Camera.canceled += instance.OnZoom_Camera;
+                @Interact.started += instance.OnInteract;
+                @Interact.performed += instance.OnInteract;
+                @Interact.canceled += instance.OnInteract;
+                @Exit.started += instance.OnExit;
+                @Exit.performed += instance.OnExit;
+                @Exit.canceled += instance.OnExit;
             }
         }
     }
     public PlayerActions @Player => new PlayerActions(this);
-
-    // DialogueManager
-    private readonly InputActionMap m_DialogueManager;
-    private IDialogueManagerActions m_DialogueManagerActionsCallbackInterface;
-    private readonly InputAction m_DialogueManager_Activate;
-    public struct DialogueManagerActions
-    {
-        private @PlayerInput m_Wrapper;
-        public DialogueManagerActions(@PlayerInput wrapper) { m_Wrapper = wrapper; }
-        public InputAction @Activate => m_Wrapper.m_DialogueManager_Activate;
-        public InputActionMap Get() { return m_Wrapper.m_DialogueManager; }
-        public void Enable() { Get().Enable(); }
-        public void Disable() { Get().Disable(); }
-        public bool enabled => Get().enabled;
-        public static implicit operator InputActionMap(DialogueManagerActions set) { return set.Get(); }
-        public void SetCallbacks(IDialogueManagerActions instance)
-        {
-            if (m_Wrapper.m_DialogueManagerActionsCallbackInterface != null)
-            {
-                @Activate.started -= m_Wrapper.m_DialogueManagerActionsCallbackInterface.OnActivate;
-                @Activate.performed -= m_Wrapper.m_DialogueManagerActionsCallbackInterface.OnActivate;
-                @Activate.canceled -= m_Wrapper.m_DialogueManagerActionsCallbackInterface.OnActivate;
-            }
-            m_Wrapper.m_DialogueManagerActionsCallbackInterface = instance;
-            if (instance != null)
-            {
-                @Activate.started += instance.OnActivate;
-                @Activate.performed += instance.OnActivate;
-                @Activate.canceled += instance.OnActivate;
-            }
-        }
-    }
-    public DialogueManagerActions @DialogueManager => new DialogueManagerActions(this);
 
     // UI
     private readonly InputActionMap m_UI;
@@ -1328,10 +1322,8 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         void OnJump(InputAction.CallbackContext context);
         void OnSprint(InputAction.CallbackContext context);
         void OnZoom_Camera(InputAction.CallbackContext context);
-    }
-    public interface IDialogueManagerActions
-    {
-        void OnActivate(InputAction.CallbackContext context);
+        void OnInteract(InputAction.CallbackContext context);
+        void OnExit(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

@@ -18,6 +18,12 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 	Transform cameraObject;
 	Rigidbody rb;
 
+	[Header("DialogueManager")]
+	public Transform ChatBackGround;
+	private Transform NPCCharacter;
+
+	public DialogueManager dialogueManager;
+
 	public float moveAmount;
 	float hVelocity = 0f;
 	float vVelocity = 0f;
@@ -61,6 +67,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 		rb = GetComponent<Rigidbody>();
 		//cameraManager = FindObjectOfType<CameraManager>();
 		cameraObject = Camera.main.transform;
+		dialogueManager = GameObject.FindGameObjectWithTag("DialogueManager").GetComponent<DialogueManager>();
 	}
 
 	private void OnEnable()
@@ -78,6 +85,13 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
 			playerControls.Player.Sprint.performed += ctx => OnSprint(ctx);
 			playerControls.Player.Sprint.canceled += ctx => OnSprint(ctx);
+
+			playerControls.Player.Interact.performed+= ctx => OnInteract(ctx);
+			playerControls.Player.Interact.canceled += ctx => OnInteract(ctx);
+
+			playerControls.Player.Exit.performed += ctx => OnExit(ctx);
+			playerControls.Player.Exit.canceled += ctx => OnExit(ctx);
+
 		}
 		playerControls.Player.Enable();
 	}
@@ -263,7 +277,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 	{
 		HandleFallingAndLanding();
 
-		if (isInteracting || isJumping)
+		if (dialogueManager.dialogueActive || isJumping)
 			return;
 
 		HandleMovement();
@@ -282,7 +296,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
 	public void OnFire(InputAction.CallbackContext context)
 	{
-		Debug.Log("pew pew");
+		print("left mouse button clicked");
 	}
 
 	public void OnJump(InputAction.CallbackContext context)
@@ -301,7 +315,43 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
 	public void OnInteract(InputAction.CallbackContext context)
 	{
-		isInteracting = context.action.triggered;
+		isInteracting = true;
+	}
+
+    public void OnExit(InputAction.CallbackContext context)
+    {
+		isInteracting = false;
+		print("please register yay");
+    }
+
+    public void OnTriggerEnter(Collider other)
+    {
+		//&& dialogueManager.dialogueInput
+		if(other.tag == "NPC")
+			dialogueManager.EnterRangeOfNPC();
+	}
+
+    public void OnTriggerStay(Collider other)
+    {
+		if (other.gameObject.tag == "NPC" && isInteracting)
+		{
+			print(isInteracting);
+			string[] sample_string_arr = { "I am speaking wow", "wow i am so amazed yippee", "lorem ipsum and other dumb jargon" };
+			dialogueManager.Names = other.name;
+			dialogueManager.dialogueLines = sample_string_arr;
+			dialogueManager.TriggerDialogue();
+		}
+		else if(!isInteracting)
+        {
+			dialogueManager.DropDialogue();
+        }
+	}
+
+    public void OnTriggerExit(Collider other)
+	{
+		//end conversation
+		if(other.tag == "NPC")
+			dialogueManager.OutOfRange();
 	}
 
 	private void Update()
@@ -317,4 +367,6 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 	private void LateUpdate()
 	{
 	}
+
+
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 
-public class DialogueManager : MonoBehaviour, PlayerInput.IDialogueManagerActions
+public class DialogueManager : MonoBehaviour
 {
 	//This dialogue manager deals with the following tasks:
 	//Dialogue: 
@@ -40,11 +40,11 @@ public class DialogueManager : MonoBehaviour, PlayerInput.IDialogueManagerAction
 
 	void Awake()
 	{
-		//audioSource = GetComponent<AudioSource>();
-/*		playerInput = new PlayerInput();
-*/		dialogueGUI = GameObject.FindGameObjectWithTag("DialogueManager");
+	//	audioSource = GetComponent<AudioSource>();
+	//	playerInput = new PlayerInput();
+		dialogueGUI = GameObject.FindGameObjectWithTag("DialogueManager");
 		dialogueGUI.SetActive(false);
-		dialogueText = dialogueGUI.transform.Find("Text").GetComponent<Text>();
+		dialogueText = dialogueGUI.GetComponentInChildren<Text>();
 		dialogueText.text = "";
 	}
 
@@ -53,10 +53,7 @@ public class DialogueManager : MonoBehaviour, PlayerInput.IDialogueManagerAction
 		
 	}
 
-	public void EnterRangeOfNPC()
-	{
 
-	}
 
 	public void NPCName()
 	{
@@ -147,19 +144,27 @@ public class DialogueManager : MonoBehaviour, PlayerInput.IDialogueManagerAction
 			dialogueText.text = "";
 		}
 	}
+	public void EnterRangeOfNPC()
+	{
+		print("in range");
+		outOfRange = false;
+	}
+
+	public void TriggerDialogue()
+    {
+		dialogueGUI.SetActive(true);
+    }
 
 	public void DropDialogue()
 	{
-
+		dialogueGUI.SetActive(false);
 	}
 
 	public void OutOfRange()
 	{
-
+		print("out of range");
+		outOfRange = true;
+		dialogueGUI.SetActive(false);
 	}
 
-    public void OnActivate(UnityEngine.InputSystem.InputAction.CallbackContext context)
-    {
-		dialogueInput = context.action.triggered;
-    }
 }
