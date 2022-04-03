@@ -5,342 +5,316 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 {
-    //private CameraManager cameraManager;
-    public float smoothTime = 1f;
-    private Vector3 velocity = Vector3.zero;
-    private PlayerInput playerControls;
-    // Movement for X and Y
-    private Vector2 movementInput;
-    public Vector2 cameraInput;
-    public Vector2 cameraScrollValue;
+	public float smoothTime = 1f;
+	private Vector3 velocity = Vector3.zero;
+	private PlayerInput playerControls;
+	// Movement for X and Y
+	private Vector2 movementInput;
+	public Vector2 cameraInput;
+	public Vector2 cameraScrollValue;
 
-    // Where the player should go based on player input, and the angle at which the player moves
-    Vector3 moveDirection;
-    Transform cameraObject;
-    Rigidbody rb;
+	// Where the player should go based on player input, and the angle at which the player moves
+	Vector3 moveDirection;
+	Transform cameraObject;
+	Rigidbody rb;
 
-    public float moveAmount;
-    float hVelocity = 0f;
-    float vVelocity = 0f;
-    float hCurrent = 0f;
-    float vCurrent = 0f;
+	public float moveAmount;
+	float hVelocity = 0f;
+	float vVelocity = 0f;
+	float hCurrent = 0f;
+	float vCurrent = 0f;
 
-    [Header("Actions")]
-    public bool isInteracting;
+	[Header("Actions")]
+	public bool isInteracting;
 
-    [Header("Animator")]
-    Animator animator;
-    int horizontal;
-    int vertical;
+	[Header("Animator")]
+	Animator animator;
+	int horizontal;
+	int vertical;
 
-    [Header("Falling")]
-    public float inAirTimer;
-    public float leapingVelocity;
-    public float fallingVelocity;
-    public float rayCastHeightOffset = 0.5f;
-    public LayerMask groundLayer;
+	[Header("Falling")]
+	public float inAirTimer;
+	public float leapingVelocity;
+	public float fallingVelocity;
+	public float rayCastHeightOffset = 0.5f;
+	public LayerMask groundLayer;
 
-    [Header("Movement Flags")]
-    public bool isJumping;
-    public bool isSprinting;
-    public bool isGrounded;
+	[Header("Movement Flags")]
+	public bool isJumping;
+	public bool isSprinting;
+	public bool isGrounded;
 
-    [Header("Movement Speeds")]
-    public float walkingSpeed = 1.5f;
-    public float runningSpeed = 5f;
-    public float sprintingSpeed = 7f;
-    private float rotationSpeed = 15f;
+	[Header("Movement Speeds")]
+	public float walkingSpeed = 1.5f;
+	public float runningSpeed = 5f;
+	public float sprintingSpeed = 7f;
+	private float rotationSpeed = 15f;
 
-    [Header("Jump Speeds")]
-    public float jumpHeight = 6f;
-    public float gravityIntensity = -15f;
+	[Header("Jump Speeds")]
+	public float jumpHeight = 6f;
+	public float gravityIntensity = -15f;
 
-    private void Awake()
-    {
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
-        rb = GetComponent<Rigidbody>();
-        //cameraManager = FindObjectOfType<CameraManager>();
-        cameraObject = Camera.main.transform;
+	private void Awake()
+	{
+		Cursor.visible = false;
+		Cursor.lockState = CursorLockMode.Locked;
+		rb = GetComponent<Rigidbody>();
+		//cameraManager = FindObjectOfType<CameraManager>();
+		cameraObject = Camera.main.transform;
+	}
 
-        //animator = GetComponent<Animator>();
-        //horizontal = Animator.StringToHash("Horizontal");
-        //vertical = Animator.StringToHash("Vertical");
-    }
+	private void OnEnable()
+	{
+		if (playerControls == null)
+		{
+			playerControls = new PlayerInput();
+			playerControls.Player.Move.performed += ctx => OnMove(ctx);
 
-    private void OnEnable()
-    {
-        if (playerControls == null)
-        {
-            playerControls = new PlayerInput();
-            //playerControls.Player.Move.started += ctx => OnMove(ctx);
-            playerControls.Player.Move.performed += ctx => OnMove(ctx);
-            //playerControls.Player.Move.canceled += ctx => OnMove(ctx);
+			playerControls.Player.Jump.performed += ctx => isJumping = true;
 
-            playerControls.Player.Jump.performed += ctx => isJumping = true;
+			playerControls.Player.Look.performed += ctx => OnLook(ctx);
 
-            playerControls.Player.Look.performed += ctx => OnLook(ctx);
+			playerControls.Player.Zoom_Camera.performed += ctx => OnZoom_Camera(ctx);
 
-            playerControls.Player.Zoom_Camera.performed += ctx => OnZoom_Camera(ctx);
+			playerControls.Player.Sprint.performed += ctx => OnSprint(ctx);
+			playerControls.Player.Sprint.canceled += ctx => OnSprint(ctx);
+		}
+		playerControls.Player.Enable();
+	}
 
-            playerControls.Player.Sprint.performed += ctx => OnSprint(ctx);
-            playerControls.Player.Sprint.canceled += ctx => OnSprint(ctx);
-        }
-        playerControls.Player.Enable();
-    }
+	private void OnDisable()
+	{
+		playerControls.Player.Disable();
+	}
 
-    private void OnDisable()
-    {
-        playerControls.Player.Disable();
-    }
+	private void PlayTargetAnimation(string targetAnimation, bool interaction)
+	{
+		//animator.SetBool("isInteracting", interaction);
+		//animator.CrossFade(targetAnimation, 0.2f);
+	}
 
-    private void PlayTargetAnimation(string targetAnimation, bool interaction)
-    {
-        //animator.SetBool("isInteracting", interaction);
-        //animator.CrossFade(targetAnimation, 0.2f);
-    }
+	private void UpdateAnimatorValues(float horizontalMovement, float verticalMovement, bool isSprinting)
+	{
+		//Animation Snapping
+		float snappedHorizontal;
+		float snappedVertical;
 
-    private void UpdateAnimatorValues(float horizontalMovement, float verticalMovement, bool isSprinting)
-    {
-        //Animation Snapping
-        float snappedHorizontal;
-        float snappedVertical;
-
-        #region Snapped Horizontal
-        if (horizontalMovement > 0 && horizontalMovement < 0.55f)
-            snappedHorizontal = 0.5f;
-        else if (horizontalMovement > 0.55f)
-            snappedHorizontal = 1f;
-        else if (horizontalMovement < 0 && horizontalMovement > -0.55f)
-            snappedHorizontal = -0.5f;
-        else if (horizontalMovement < -0.55f)
-            snappedHorizontal = -1f;
-        else
-            snappedHorizontal = 0;
-        #endregion
-        #region Snapped Vertical
-        if (verticalMovement > 0 && verticalMovement < 0.55f)
-            snappedVertical = 0.5f;
-        else if (verticalMovement > 0.55f)
-            snappedVertical = 1f;
-        else if (verticalMovement < 0 && verticalMovement > -0.55f)
-            snappedVertical = -0.5f;
-        else if (verticalMovement < -0.55f)
-            snappedVertical = -1f;
-        else
-            snappedVertical = 0;
-        #endregion
+		#region Snapped Horizontal
+		if (horizontalMovement > 0 && horizontalMovement < 0.55f)
+			snappedHorizontal = 0.5f;
+		else if (horizontalMovement > 0.55f)
+			snappedHorizontal = 1f;
+		else if (horizontalMovement < 0 && horizontalMovement > -0.55f)
+			snappedHorizontal = -0.5f;
+		else if (horizontalMovement < -0.55f)
+			snappedHorizontal = -1f;
+		else
+			snappedHorizontal = 0;
+		#endregion
+		#region Snapped Vertical
+		if (verticalMovement > 0 && verticalMovement < 0.55f)
+			snappedVertical = 0.5f;
+		else if (verticalMovement > 0.55f)
+			snappedVertical = 1f;
+		else if (verticalMovement < 0 && verticalMovement > -0.55f)
+			snappedVertical = -0.5f;
+		else if (verticalMovement < -0.55f)
+			snappedVertical = -1f;
+		else
+			snappedVertical = 0;
+		#endregion
 
 
-        if (isSprinting)
-        {
-            snappedHorizontal = horizontalMovement;
-            snappedVertical = 2f;
-        }
+		if (isSprinting)
+		{
+			snappedHorizontal = horizontalMovement;
+			snappedVertical = 2f;
+		}
+	}
 
-        //animator.SetFloat(horizontal, snappedHorizontal, 0.1f, Time.deltaTime);
-        //animator.SetFloat(vertical, snappedVertical, 0.1f, Time.deltaTime);
-    }
+	//Handle functions are self-explanatory
 
-    private void HandleMovementInput()
-    {
-        /*
-                float newH = Mathf.SmoothDamp(hCurrent, movementInput.x, ref hVelocity, smoothTime);
-                float newV = Mathf.SmoothDamp(vCurrent, movementInput.y, ref vVelocity, smoothTime);
-                hCurrent = newH;
-                vCurrent = newV;*/
-        hCurrent = movementInput.x;
-        vCurrent = movementInput.y;
+	private void HandleMovementInput()
+	{
+		hCurrent = movementInput.x;
+		vCurrent = movementInput.y;
 
-        moveAmount = Mathf.Clamp01(Mathf.Abs(hCurrent) + Mathf.Abs(vCurrent));
-        UpdateAnimatorValues(0, moveAmount, isSprinting);
-    }
+		moveAmount = Mathf.Clamp01(Mathf.Abs(hCurrent) + Mathf.Abs(vCurrent));
+		UpdateAnimatorValues(0, moveAmount, isSprinting);
+	}
 
-    private void HandleSprintingInput()
-    {
-        if (isSprinting && moveAmount > 0.5f)
-        {
-            isSprinting = true;
-        }
-        else
-        {
-            isSprinting = false;
-        }
-    }
+	private void HandleSprintingInput()
+	{
+		if (isSprinting && moveAmount > 0.5f)
+		{
+			isSprinting = true;
+		}
+		else
+		{
+			isSprinting = false;
+		}
+	}
 
-    private void HandleJumpingInput()
-    {
-       if(isJumping)
-        {
-            HandleJumping();
-            isJumping = !isJumping;
-        }
-    }
+	private void HandleJumpingInput()
+	{
+		if (isJumping)
+		{
+			HandleJumping();
+			isJumping = !isJumping;
+		}
+	}
 
-    private void HandleAllInput()
-    {
-        HandleMovementInput();
-        HandleSprintingInput();
-        HandleJumpingInput();
-    }
+	private void HandleAllInput()
+	{
+		HandleMovementInput();
+		HandleSprintingInput();
+		HandleJumpingInput();
+	}
 
-    private void HandleMovement()
-    {
-        //print(cameraObject.forward);
+	private void HandleMovement()
+	{
+		Vector3 movement = new Vector3(hCurrent, 0, vCurrent) * Time.deltaTime;
 
-        Vector3 movement = new Vector3(hCurrent, 0,vCurrent) * Time.deltaTime;
+		movement = cameraObject.TransformDirection(movement);
+		movement.y = 0;
+		movement.Normalize();
 
-        movement = cameraObject.TransformDirection(movement);
-        movement.y = 0;
-        movement.Normalize();
+		if (isSprinting)
+		{
+			movement *= sprintingSpeed;
+		}
+		else
+		{
+			if (moveAmount >= 0.5f)
+			{
+				movement *= runningSpeed;
+			}
+			else
+			{
+				movement *= walkingSpeed;
+			}
+		}
 
-        if (isSprinting)
-        {
-            movement *= sprintingSpeed;
-        }
-        else
-        {
-            if (moveAmount >= 0.5f)
-            {
-                movement *= runningSpeed;
-            }
-            else
-            {
-                movement *= walkingSpeed;
-            }
-        }
+		rb.velocity = movement;
+		if(movement != Vector3.zero)
+		{
+			HandleRotation();
+		}
+		//print(movement);
+	}
 
-        rb.velocity = movement;
-        //print(movement);
-    }
+	private void HandleJumping()
+	{
+		if (isGrounded)
+		{
+			//animator.SetBool("isJumping", true);
+			//PlayTargetAnimation("Jump", false);
 
-    private void HandleJumping()
-    {
-        if (isGrounded)
-        {
-            //animator.SetBool("isJumping", true);
-            //PlayTargetAnimation("Jump", false);
+			float jumpingVelocity = Mathf.Sqrt(-2 * gravityIntensity * jumpHeight);
+			Vector3 playerVelocity = moveDirection;
+			playerVelocity.y = jumpingVelocity;
+			rb.velocity = playerVelocity;
+		}
+	}
 
-            float jumpingVelocity = Mathf.Sqrt(-2 * gravityIntensity * jumpHeight);
-            Vector3 playerVelocity = moveDirection;
-            playerVelocity.y = jumpingVelocity;
-            rb.velocity = playerVelocity;
-        }
-    }
+	private void HandleRotation()
+	{
 
-    private void HandleRotation()
-    {
+		Vector3 targetDirection = cameraObject.forward * vCurrent + cameraObject.right * hCurrent;
+		targetDirection.Normalize();
+		targetDirection.y = 0;
+		Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
+		Quaternion playerRotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
 
-        Vector3 targetDirection = cameraObject.forward * vCurrent + cameraObject.right * hCurrent;
-        targetDirection.Normalize();
-        targetDirection.y = 0;
-        Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
-        Quaternion playerRotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+		transform.rotation = playerRotation;
+	}
 
-        if (movementInput.x != 0 || movementInput.y != 0)
-            transform.rotation = playerRotation;
+	private void HandleFallingAndLanding()
+	{
+		Vector3 rayCastOrigin = transform.position;
+		rayCastOrigin.y += rayCastHeightOffset;
 
-    }
+		if (!isGrounded && !isJumping)
+		{
+			if (!isInteracting)
+			{
+				//PlayTargetAnimation("Falling", true);
+			}
+			inAirTimer += Time.deltaTime;
+			rb.AddForce(transform.forward * leapingVelocity);
+			rb.AddForce(-Vector3.up * fallingVelocity * inAirTimer);
+		}
 
-    private void HandleFallingAndLanding()
-    {
-        Vector3 rayCastOrigin = transform.position;
-        rayCastOrigin.y += rayCastHeightOffset;
+		if (Physics.SphereCast(rayCastOrigin, 0.05f, -Vector3.up, out _, groundLayer))
+		{
+			if (!isGrounded && !isInteracting)
+			{
+				//PlayTargetAnimation("Land", true);
+			}
+			inAirTimer = 0;
+			isGrounded = true;
+		}
+		else
+		{
+			isGrounded = false;
+		}
+	}
+	private void HandleAllMovement()
+	{
+		HandleFallingAndLanding();
 
-        if (!isGrounded && !isJumping)
-        {
-            if (!isInteracting)
-            {
-                //PlayTargetAnimation("Falling", true);
-            }
-            inAirTimer += Time.deltaTime;
-            rb.AddForce(transform.forward * leapingVelocity);
-            rb.AddForce(-Vector3.up * fallingVelocity * inAirTimer);
-        }
+		if (isInteracting || isJumping)
+			return;
 
-        if (Physics.SphereCast(rayCastOrigin, 0.05f, -Vector3.up, out _, groundLayer))
-        {
-            if (!isGrounded && !isInteracting)
-            {
-                //PlayTargetAnimation("Land", true);
-            }
-            inAirTimer = 0;
-            isGrounded = true;
-        }
-        else
-        {
-            isGrounded = false;
-        }
-    }
+		HandleMovement();
+	}
 
-    private void HandleAllMovement()
-    {
-        HandleFallingAndLanding();
+	public void OnMove(InputAction.CallbackContext context)
+	{
+		movementInput = context.ReadValue<Vector2>();
+	}
 
-        if (isInteracting || isJumping)
-            return;
+	public void OnLook(InputAction.CallbackContext context)
+	{
+		cameraInput = context.ReadValue<Vector2>();
+		//cameraManager.RotateCamera(cameraInput);
+	}
 
-        HandleMovement();
-        HandleRotation();
-    }
+	public void OnFire(InputAction.CallbackContext context)
+	{
+		Debug.Log("pew pew");
+	}
 
-    private void HandleInteraction() { 
-    }
+	public void OnJump(InputAction.CallbackContext context)
+	{
+		isJumping = context.action.triggered;
+	}
 
-    public void OnMove(InputAction.CallbackContext context)
-    {
-        movementInput = context.ReadValue<Vector2>();
-        //Debug.Log(context.phase);
-        //Debug.Log(movementInput);
-    }
+	public void OnSprint(InputAction.CallbackContext context)
+	{
+		isSprinting = context.action.triggered;
+	}
+	public void OnZoom_Camera(InputAction.CallbackContext context)
+	{
+		cameraScrollValue = context.ReadValue<Vector2>();
+	}
 
-    public void OnLook(InputAction.CallbackContext context)
-    {
-        cameraInput = context.ReadValue<Vector2>();
-        //cameraManager.RotateCamera(cameraInput);
-    }
+	public void OnInteract(InputAction.CallbackContext context)
+	{
+		isInteracting = context.action.triggered;
+	}
 
-    public void OnFire(InputAction.CallbackContext context)
-    {
-        throw new System.NotImplementedException();
-    }
+	private void Update()
+	{
+		HandleAllMovement();
+	}
 
-    public void OnJump(InputAction.CallbackContext context)
-    {
-        isJumping = context.action.triggered;
-    }
+	private void FixedUpdate()
+	{
+		HandleAllInput();
+	}
 
-    public void OnSprint(InputAction.CallbackContext context)
-    {
-        isSprinting = context.action.triggered;
-    }
-    public void OnZoom_Camera(InputAction.CallbackContext context)
-    {
-        cameraScrollValue = context.ReadValue<Vector2>();
-        //cameraManager.CameraZoom(cameraScrollValue);
-    }
-
-    public void OnInteract(InputAction.CallbackContext context)
-    {
-        isInteracting = context.action.triggered;
-    }
-
-    private void Update()
-    {
-    }
-
-    private void FixedUpdate()
-    {
-        HandleAllInput();
-    }
-
-    private void LateUpdate()
-    {
-        HandleAllMovement();
-
-        //cameraManager.HandleAllCameraMovement(cameraInput, cameraScrollValue);
-        //isInteracting = animator.GetBool("isInteracting");
-        //isJumping = animator.GetBool("isJumping");
-        //animator.SetBool("isGrounded", isGrounded);
-    }
+	private void LateUpdate()
+	{
+	}
 }

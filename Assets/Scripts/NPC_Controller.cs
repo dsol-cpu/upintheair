@@ -8,7 +8,7 @@ public class NPC_Controller : MonoBehaviour
 {
 
     public Transform ChatBackGround;
-    public Transform NPCCharacter;
+    private Transform NPCCharacter;
 
     private DialogueManager dialogueManager;
 
@@ -17,25 +17,27 @@ public class NPC_Controller : MonoBehaviour
     [TextArea(5, 10)]
     public string[] sentences;
 
-    void Start()
+    void Awake()
     {
-        dialogueManager = FindObjectOfType<DialogueManager>();
+        dialogueManager = GameObject.Find("DialogueManager").GetComponent<DialogueManager>();
+        NPCCharacter = this.gameObject.transform;
     }
 
     void Update()
     {
         Vector3 Pos = Camera.main.WorldToScreenPoint(NPCCharacter.position);
-        Pos.y += 175;
+
+        //Offset by height of npc_character
+        Pos.y += this.gameObject.GetComponent<Renderer>().bounds.size.y/2;
         ChatBackGround.position = Pos;
     }
 
-    public void OnTriggerStay(Collider other)
+    public void OnTriggerEnter(Collider other)
     {
-        this.gameObject.GetComponent<NPC_Controller>().enabled = true;
-        //FindObjectOfType<DialogueManager>().EnterRangeOfNPC();
-        if ((other.gameObject.tag == "Player") && Input.GetKeyDown(KeyCode.F))
+        if (other.gameObject.tag == "Player" && dialogueManager.dialogueInput)
         {
             this.gameObject.GetComponent<NPC_Controller>().enabled = true;
+            print("wow so fresh");
             dialogueManager.Names = Name;
             dialogueManager.dialogueLines = sentences;
             FindObjectOfType<DialogueManager>().NPCName();
@@ -44,8 +46,9 @@ public class NPC_Controller : MonoBehaviour
 
     public void OnTriggerExit()
     {
-        FindObjectOfType<DialogueManager>().OutOfRange();
+        //FindObjectOfType<DialogueManager>().OutOfRange();
         this.gameObject.GetComponent<NPC_Controller>().enabled = false;
     }
+
 }
 
