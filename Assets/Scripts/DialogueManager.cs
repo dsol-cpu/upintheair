@@ -42,10 +42,10 @@ public class DialogueManager : MonoBehaviour, PlayerInput.IDialogueManagerAction
 	{
 		//audioSource = GetComponent<AudioSource>();
 /*		playerInput = new PlayerInput();
-		dialogueGUI = GameObject.FindGameObjectWithTag("DialogueManager").	transform.Find("DialogueGUI").gameObject;
-*/		dialogueText = this.gameObject.transform.Find("Text").GetComponent<Text>();
+*/		dialogueGUI = GameObject.FindGameObjectWithTag("DialogueManager");
+		dialogueGUI.SetActive(false);
+		dialogueText = dialogueGUI.transform.Find("Text").GetComponent<Text>();
 		dialogueText.text = "";
-
 	}
 
 	void Update()
