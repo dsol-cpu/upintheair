@@ -902,6 +902,62 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "DialogueStart",
+            "id": "e6982dc1-61c8-4bd0-9628-28d33c226e03",
+            "actions": [
+                {
+                    "name": "Interact",
+                    "type": "Button",
+                    "id": "217c400a-2db9-48b7-9276-8ccbac79f9e0",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "aada1212-0cb9-4d71-8d3b-f96182bc04f6",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "ContinueBtn",
+            "id": "a610e2b1-71f7-41c4-b8c7-2ecdda2d4552",
+            "actions": [
+                {
+                    "name": "Continue",
+                    "type": "Button",
+                    "id": "ddbf0c20-a285-4ed1-8858-76a99fa29f2b",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "1da0ed5c-8b0b-4636-91ff-9ccd5c0f7791",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Continue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": [

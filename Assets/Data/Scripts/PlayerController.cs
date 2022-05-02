@@ -22,8 +22,6 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 	public Transform ChatBackGround;
 	private Transform NPCCharacter;
 
-	public DialogueManager dialogueManager;
-
 	public float moveAmount;
 	float hVelocity = 0f;
 	float vVelocity = 0f;
@@ -60,14 +58,18 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 	public float jumpHeight = 6f;
 	public float gravityIntensity = -15f;
 
+	[Header("Dialogue Flags")]
+	[SerializeField] private bool didWeTalk = false;
+	public bool DidWeTalk { get => didWeTalk; set => didWeTalk = value; }
+
+
 	private void Awake()
 	{
+		Application.targetFrameRate = 60;
 		Cursor.visible = false;
 		Cursor.lockState = CursorLockMode.Locked;
 		rb = GetComponent<Rigidbody>();
-		//cameraManager = FindObjectOfType<CameraManager>();
 		cameraObject = Camera.main.transform;
-		dialogueManager = GameObject.FindGameObjectWithTag("DialogueManager").GetComponent<DialogueManager>();
 	}
 
 	private void OnEnable()
@@ -277,7 +279,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 	{
 		HandleFallingAndLanding();
 
-		if (dialogueManager.dialogueActive || isJumping)
+		if (isJumping)
 			return;
 
 		HandleMovement();
@@ -291,7 +293,6 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 	public void OnLook(InputAction.CallbackContext context)
 	{
 		cameraInput = context.ReadValue<Vector2>();
-		//cameraManager.RotateCamera(cameraInput);
 	}
 
 	public void OnFire(InputAction.CallbackContext context)
@@ -323,36 +324,6 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 		isInteracting = false;
 		print("please register yay");
     }
-
-    public void OnTriggerEnter(Collider other)
-    {
-		//&& dialogueManager.dialogueInput
-		if(other.tag == "NPC")
-			dialogueManager.EnterRangeOfNPC();
-	}
-
-    public void OnTriggerStay(Collider other)
-    {
-		if (other.gameObject.tag == "NPC" && isInteracting)
-		{
-			print(isInteracting);
-			string[] sample_string_arr = { "I am speaking wow", "wow i am so amazed yippee", "lorem ipsum and other dumb jargon" };
-			dialogueManager.Names = other.name;
-			dialogueManager.dialogueLines = sample_string_arr;
-			dialogueManager.TriggerDialogue();
-		}
-		else if(!isInteracting)
-        {
-			dialogueManager.DropDialogue();
-        }
-	}
-
-    public void OnTriggerExit(Collider other)
-	{
-		//end conversation
-		if(other.tag == "NPC")
-			dialogueManager.OutOfRange();
-	}
 
 	private void Update()
 	{

@@ -10,8 +10,6 @@ public class NPC_Controller : MonoBehaviour
     public Transform ChatBackGround;
     private Transform NPCCharacter;
 
-    public DialogueManager dialogueManager;
-
     public string Name;
 
     [TextArea(5, 10)]
