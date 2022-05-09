@@ -61,6 +61,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 	[Header("Dialogue Flags")]
 	[SerializeField] private bool didWeTalk = false;
 	public bool DidWeTalk { get => didWeTalk; set => didWeTalk = value; }
+	public bool isInRange;
 
 
 	private void Awake()
@@ -316,7 +317,11 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
 	public void OnInteract(InputAction.CallbackContext context)
 	{
-		isInteracting = true;
+		if (isInRange)
+		{
+			isInteracting = true;
+			print("Called interaction");
+		}
 	}
 
     public void OnExit(InputAction.CallbackContext context)

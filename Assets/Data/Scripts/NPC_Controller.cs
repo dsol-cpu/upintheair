@@ -6,8 +6,8 @@ using UnityEngine;
 [System.Serializable]
 public class NPC_Controller : MonoBehaviour
 {
+    PlayerController player;
 
-    public Transform ChatBackGround;
     private Transform NPCCharacter;
 
     public string Name;
@@ -24,18 +24,20 @@ public class NPC_Controller : MonoBehaviour
     {
 
     }
-/*
+
     public void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "Player" && dialogueManager.dialogueInput)
+        if (other.gameObject.tag == "Player")
         {
             print("wow so fresh");
-            dialogueManager.Names = Name;
-            dialogueManager.dialogueLines = sentences;
-            FindObjectOfType<DialogueManager>().NPCName();
         }
+
     }
-*/
+
+    public void OnTriggerExit(Collider other)
+    {
+        print("Out of range");
+    }
 
 
 }
