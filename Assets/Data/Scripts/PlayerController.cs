@@ -56,7 +56,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
 	[Header("Jump Speeds")]
 	public float jumpHeight = 6f;
-	public float gravityIntensity = -15f;
+	public float gravityIntensity = 9.8f;
 
 	[Header("Dialogue Flags")]
 	[SerializeField] private bool didWeTalk = false;
@@ -79,6 +79,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 		{
 			playerControls = new PlayerInput();
 			playerControls.Player.Move.performed += ctx => OnMove(ctx);
+			playerControls.Player.Move.canceled += ctx => rb.velocity = Vector3.zero;
 
 			playerControls.Player.Jump.performed += ctx => isJumping = true;
 
@@ -226,8 +227,7 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 		{
 			//animator.SetBool("isJumping", true);
 			//PlayTargetAnimation("Jump", false);
-
-			float jumpingVelocity = Mathf.Sqrt(-2 * gravityIntensity * jumpHeight);
+			float jumpingVelocity = Mathf.Sqrt(2 * gravityIntensity * jumpHeight);
 			Vector3 playerVelocity = moveDirection;
 			playerVelocity.y = jumpingVelocity;
 			rb.velocity = playerVelocity;
@@ -236,7 +236,6 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 
 	private void HandleRotation()
 	{
-
 		Vector3 targetDirection = cameraObject.forward * vCurrent + cameraObject.right * hCurrent;
 		targetDirection.Normalize();
 		targetDirection.y = 0;
@@ -259,16 +258,16 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 			}
 			inAirTimer += Time.deltaTime;
 			rb.AddForce(transform.forward * leapingVelocity);
-			rb.AddForce(-Vector3.up * fallingVelocity * inAirTimer);
+			rb.AddForce(Vector3.down * fallingVelocity * inAirTimer);
 		}
 
-		if (Physics.SphereCast(rayCastOrigin, 0.05f, -Vector3.up, out _, groundLayer))
+		if (Physics.SphereCast(rayCastOrigin, 0.07f, Vector3.down, out _, groundLayer))
 		{
 			if (!isGrounded && !isInteracting)
 			{
 				//PlayTargetAnimation("Land", true);
 			}
-			inAirTimer = 0;
+			inAirTimer = 1;
 			isGrounded = true;
 		}
 		else
@@ -343,6 +342,4 @@ public class PlayerController : MonoBehaviour, PlayerInput.IPlayerActions
 	private void LateUpdate()
 	{
 	}
-
-
 }
