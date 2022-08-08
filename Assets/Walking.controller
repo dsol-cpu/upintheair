@@ -374,7 +374,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06561318fe7596941ba0e62ee57d57e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isInteractingBool: 
+  isInteractingBool: isInteracting
 --- !u!1101 &8192443736297036090
 AnimatorStateTransition:
   m_ObjectHideFlags: 1

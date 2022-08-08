@@ -8,11 +8,11 @@ public class Camera_Zoom : MonoBehaviour, PlayerMovement.ICameraActions
 {
     private PlayerMovement controls;
     [SerializeField] private CinemachineFramingTransposer transposer;
-    [SerializeField] private float sensitivity = 10f;
+    [SerializeField] private float sensitivity = 1.5f;
     // Start is called before the first frame update
     void Start()
     {
-        transposer = GetComponent<CinemachineVirtualCamera>().GetComponent<CinemachineFramingTransposer>();
+        transposer = GetComponent<CinemachineVirtualCamera>().GetComponentInChildren<CinemachineFramingTransposer>();
     }
 
     void Update()
@@ -27,20 +27,19 @@ public class Camera_Zoom : MonoBehaviour, PlayerMovement.ICameraActions
             controls = new PlayerMovement();
             controls.Camera.Zoom_Camera.performed += ctx => OnZoom_Camera(ctx);
         }
-        controls.Player.Enable();
+        controls.Camera.Enable();
     }
 
     void OnDisable()
     {
         controls.Camera.Zoom_Camera.performed -= ctx => OnZoom_Camera(ctx);
-        controls.Player.Disable();
+        controls.Camera.Disable();
     }
 
     public void OnLook(InputAction.CallbackContext context) { }
 
     public void OnZoom_Camera(InputAction.CallbackContext context)
     {
-        print("scrolling");
-        transposer.m_CameraDistance += context.ReadValue<float>() * sensitivity;
+        transposer.m_CameraDistance -= Mathf.Clamp(context.ReadValue<Vector2>().y,-sensitivity, sensitivity);
     }
 }
