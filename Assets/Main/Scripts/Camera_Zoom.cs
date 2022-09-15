@@ -8,7 +8,7 @@ public class Camera_Zoom : MonoBehaviour, PlayerMovement.ICameraActions
 {
     private PlayerMovement controls;
     [SerializeField] private CinemachineFramingTransposer transposer;
-    [SerializeField] private float sensitivity = 1.5f;
+    [SerializeField] private float sensitivity = 0.5f;
     // Start is called before the first frame update
     void Start()
     {
@@ -41,5 +41,6 @@ public class Camera_Zoom : MonoBehaviour, PlayerMovement.ICameraActions
     public void OnZoom_Camera(InputAction.CallbackContext context)
     {
         transposer.m_CameraDistance -= Mathf.Clamp(context.ReadValue<Vector2>().y,-sensitivity, sensitivity);
+        
     }
 }

@@ -117,6 +117,7 @@ public class DialogueInteract : MonoBehaviour, PlayerMovement.IDialogueActions
         {
             // Kick off the dialogue at this node.
             FindObjectOfType<DialogueRunner>().StartDialogue(target.talkToNode);
+            target.Talking(transform.position);
             // reenabling the input on the dialogue
             dialogueInput.enabled = true;
             //disable camera look

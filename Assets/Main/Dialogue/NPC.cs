@@ -25,18 +25,49 @@ SOFTWARE.
 */
 
 using UnityEngine;
+using Yarn.Unity;
 
-namespace Yarn.Unity
+/// <summary>
+/// Attached to the non-player characters, and stores the name of the Yarn
+/// node that should be run when you talk to them.
+/// </summary>
+public class NPC : MonoBehaviour
 {
-    /// <summary>
-    /// Attached to the non-player characters, and stores the name of the Yarn
-    /// node that should be run when you talk to them.
-    /// </summary>
-    public class NPC : MonoBehaviour
-    {
-        public string characterName = "";
+    public string characterName = "";
+    public string talkToNode = "";
+    [SerializeField] private DialogueRunner dialogueRunner;
+    private NPCMovementAI movementAI;
 
-        public string talkToNode = "";
+    private void Start()
+    {
+        dialogueRunner = FindObjectOfType<DialogueRunner>();
+        movementAI = GetComponent<NPCMovementAI>();
     }
 
+    private void Update()
+    {
+    }
+
+    public void Talking(Vector3 rotation)
+    {
+        movementAI.DoTalk(rotation);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        //"hello!"
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+     
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        dialogueRunner.IsDialogueRunning = false;
+        //make dialogue change
+        //"good day!"
+    }
 }
+

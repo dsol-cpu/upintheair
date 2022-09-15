@@ -171,7 +171,10 @@ namespace Player
 		{
 			RaycastHit hit;
 			Vector3 rayCastOrigin = transform.position;
+			Vector3 targetPosition;
 			rayCastOrigin.y += rayCastHeightOffset;
+			targetPosition = transform.position;
+
 			if (!isGrounded && !isJumping)
 			{
 				if (!isInteracting)
@@ -182,22 +185,34 @@ namespace Player
 				rb.AddForce(transform.forward * leapingVelocity);
 				rb.AddForce(Vector3.down * fallingVelocity * inAirTimer);
 			}
-			if(Physics.Raycast(rayCastOrigin, Vector3.down, out hit, .7f, groundLayer))
+			if(Physics.Raycast(rayCastOrigin, Vector3.down, out hit, .75f, groundLayer))
             {
 				
 				if (!isGrounded && !isInteracting)
 				{
 					animatorManager.PlayTargetAnimation("Landing", true);
 				}
-					isGrounded = true;
-					readyToJump = true;
-					inAirTimer = 0f;
+				Vector3 rayCastHitPoint = hit.point;
+				targetPosition.y = rayCastHitPoint.y;
+				isGrounded = true;
+				readyToJump = true;
+				inAirTimer = 0f;
 				}
 				else
 				{
 					isGrounded = false;
 				}		
-			
+			if(isGrounded && !isJumping)
+            {
+				if(isInteracting || moveAmount > 0)
+                {
+					transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime / 0.1f);
+                }
+				else
+                {
+					transform.position = targetPosition;
+                }
+            }
 		}
 
 		private void HandleAllMovement()
