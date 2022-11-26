@@ -1,4 +1,4 @@
-using System.Collections;
+/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Yarn.Unity;
@@ -52,4 +52,4 @@ public class TestScript : MonoBehaviour
         yield return new WaitForSeconds(0.01f);
         dialogueRunner.StartDialogue(nodeTitle);
     }
-}
+}*/
